@@ -1,0 +1,2 @@
+# PKS
+Plaka Okuma Sistemi
