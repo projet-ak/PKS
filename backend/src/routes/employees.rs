@@ -91,4 +91,3 @@ async fn deactivate(
         .ok_or(ApiError::NotFound)?;
     Ok(Json(row))
 }
-?;
