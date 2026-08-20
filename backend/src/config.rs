@@ -7,6 +7,9 @@ pub struct Config {
     pub bind_addr: String,
     /// Ayni karti pes pese okuyan kioskun mukerrer kayit acmasini engeller.
     pub scan_debounce_seconds: i64,
+    /// CORS icin izin verilen origin. Uretimde frontend ile API ayni alan
+    /// adinda oldugundan bos birakilir ve CORS katmani hic eklenmez.
+    pub allowed_origin: Option<String>,
 }
 
 impl Config {
@@ -19,6 +22,9 @@ impl Config {
                 .ok()
                 .and_then(|v| v.parse().ok())
                 .unwrap_or(30),
+            allowed_origin: env::var("PKS_ALLOWED_ORIGIN")
+                .ok()
+                .filter(|v| !v.trim().is_empty()),
         })
     }
 }

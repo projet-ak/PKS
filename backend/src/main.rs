@@ -5,10 +5,10 @@ mod routes;
 
 use std::time::Duration;
 
-use axum::http::{header, Method};
+use axum::http::{header, HeaderValue, Method};
 use sqlx::postgres::PgPoolOptions;
 use sqlx::PgPool;
-use tower_http::cors::{Any, CorsLayer};
+use tower_http::cors::CorsLayer;
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::EnvFilter;
 
@@ -41,16 +41,24 @@ async fn main() -> anyhow::Result<()> {
     sqlx::migrate!("../migrations").run(&db).await?;
     tracing::info!("veritabani migration'lari uygulandi");
 
-    // Gelistirmede frontend ayri portta calisiyor; uretimde ayni origin olacak.
-    let cors = CorsLayer::new()
-        .allow_origin(Any)
-        .allow_methods([Method::GET, Method::POST, Method::DELETE])
-        .allow_headers([header::CONTENT_TYPE]);
+    // Uretimde frontend ile API ayni alan adindan servis edilir, o yuzden
+    // CORS katmani yalnizca PKS_ALLOWED_ORIGIN verildiginde eklenir.
+    let cors = match &config.allowed_origin {
+        Some(origin) => Some(
+            CorsLayer::new()
+                .allow_origin(origin.parse::<HeaderValue>()?)
+                .allow_methods([Method::GET, Method::POST, Method::DELETE])
+                .allow_headers([header::CONTENT_TYPE]),
+        ),
+        None => None,
+    };
 
     let bind_addr = config.bind_addr.clone();
-    let app = routes::router(AppState { db, config })
-        .layer(cors)
-        .layer(TraceLayer::new_for_http());
+    let mut app = routes::router(AppState { db, config });
+    if let Some(cors) = cors {
+        app = app.layer(cors);
+    }
+    let app = app.layer(TraceLayer::new_for_http());
 
     let listener = tokio::net::TcpListener::bind(&bind_addr).await?;
     tracing::info!("PKS API dinlemede: http://{bind_addr}");
