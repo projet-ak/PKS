@@ -1,2 +1,2 @@
-# PKS
-Plaka Okuma Sistemi
+# PTS
+Personel Takip Sistemi
