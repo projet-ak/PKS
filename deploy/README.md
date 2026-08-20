@@ -67,11 +67,31 @@ aaPanel > Web Sitesi > `pts.ernsaha.com.tr` > **Site dizini**:
 /www/wwwroot/pts/frontend/dist
 ```
 
-Ardindan **Konfigurasyon** sekmesinde, SSL server blogunun icine
-[`nginx-pts.conf`](nginx-pts.conf) dosyasindaki bloklari ekle ve Nginx'i
-yeniden yukle.
+Site kokunu degistirmek yerine symlink de kullanabilirsin; aaPanel'in
+olusturdugu kokteki `.well-known` dizini SSL yenilemesi icin gerekli oldugundan
+o dizini silme:
 
-## 5. Dogrula
+```bash
+cd /www/wwwroot/pts.ernsaha.com.tr
+rm -f index.html 404.html 502.html
+ln -s /www/wwwroot/pts/frontend/dist/index.html index.html
+ln -s /www/wwwroot/pts/frontend/dist/assets assets
+ln -s /www/wwwroot/pts/frontend/dist/vendor vendor
+```
+
+## 5. Nginx yapilandirmasi
+
+aaPanel her site icin bir eklenti dizini include eder. Ana konfigurasyona
+dokunmadan oraya kopyala; boylece panel dosyayi yeniden urettiginde ayarlar
+kaybolmaz:
+
+```bash
+mkdir -p /www/server/panel/vhost/nginx/extension/pts.ernsaha.com.tr
+cp /www/wwwroot/pts/deploy/nginx-pts.conf    /www/server/panel/vhost/nginx/extension/pts.ernsaha.com.tr/pts.conf
+nginx -t && nginx -s reload
+```
+
+## 6. Dogrula
 
 - `https://pts.ernsaha.com.tr/health` → `{"status":"ok"}`
 - `https://pts.ernsaha.com.tr/personel` → personel ekle
