@@ -63,11 +63,14 @@ async fn create(
         .bind(body.hired_on)
         .fetch_one(&state.db)
         .await
-        .map_err(|e| match &e {
-            sqlx::Error::Database(db) if db.is_unique_violation() => {
-                ApiError::Conflict("bu sicil numarasi zaten kayitli".into())
+        // Unique ihlalini 409'a cevir; digerlerini 500 olarak birak.
+        .map_err(|e| {
+            if let sqlx::Error::Database(db) = &e {
+                if db.is_unique_violation() {
+                    return ApiError::Conflict("bu sicil numarasi zaten kayitli".into());
+                }
             }
-            _ => ApiError::Database(e),
+            ApiError::Database(e)
         })?;
     Ok(Json(row))
 }
@@ -88,3 +91,4 @@ async fn deactivate(
         .ok_or(ApiError::NotFound)?;
     Ok(Json(row))
 }
+?;

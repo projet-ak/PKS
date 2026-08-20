@@ -54,11 +54,13 @@ async fn assign(
         .bind(employee_id)
         .fetch_one(&mut *tx)
         .await
-        .map_err(|e| match &e {
-            sqlx::Error::Database(db) if db.is_unique_violation() => ApiError::Conflict(
-                "bu ArUco ID baska bir personele tanimli".into(),
-            ),
-            _ => ApiError::Database(e),
+        .map_err(|e| {
+            if let sqlx::Error::Database(db) = &e {
+                if db.is_unique_violation() {
+                    return ApiError::Conflict("bu ArUco ID baska bir personele tanimli".into());
+                }
+            }
+            ApiError::Database(e)
         })?;
 
     tx.commit().await?;

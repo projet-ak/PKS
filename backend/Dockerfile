@@ -7,7 +7,7 @@ WORKDIR /app
 
 # Once yalnizca manifest'i kopyalayip bagimliliklari derliyoruz; kaynak kod
 # degistiginde bu katman cache'ten gelir ve yeniden derleme kisalir.
-COPY backend/Cargo.toml backend/Cargo.lock* backend/
+COPY backend/Cargo.toml backend/
 RUN mkdir -p backend/src \
     && echo 'fn main() {}' > backend/src/main.rs \
     && cargo build --release --manifest-path backend/Cargo.toml \

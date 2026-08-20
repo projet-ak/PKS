@@ -191,8 +191,11 @@ async fn daily(
                 e.first_name || ' ' || e.last_name AS full_name,
                 MIN(d.occurred_at) FILTER (WHERE d.direction = 'in')  AS first_in,
                 MAX(d.occurred_at) FILTER (WHERE d.direction = 'out') AS last_out,
+                -- EXTRACT/SUM numeric dondurur; sqlx numeric'i f64'e cozemez,
+                -- o yuzden acikca double precision'a cast ediyoruz.
                 SUM(EXTRACT(EPOCH FROM (d.next_at - d.occurred_at)) / 60.0)
-                    FILTER (WHERE d.direction = 'in' AND d.next_dir = 'out') AS worked_minutes
+                    FILTER (WHERE d.direction = 'in' AND d.next_dir = 'out')
+                    ::float8 AS worked_minutes
            FROM day_events d
            JOIN employees e ON e.id = d.employee_id
           GROUP BY e.id, full_name
