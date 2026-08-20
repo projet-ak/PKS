@@ -89,6 +89,11 @@ Panel: http://localhost:5173 — Kiosk sayfası kamera izni ister. Tarayıcılar
 webcam'e yalnızca `localhost` veya HTTPS üzerinden izin verir; kiosk cihazını
 ağdan açacaksan sertifika gerekir.
 
+## Sunucuya kurulum
+
+Canlı ortam `https://pts.ernsaha.com.tr` üzerinde aaPanel arkasında çalışır.
+Adım adım kurulum: [deploy/README.md](deploy/README.md).
+
 ## ArUco kartları
 
 Sözlük: **ARUCO_MIP_36h12** (backend varsayılanı ve kiosk sayfası aynı olmalı).
