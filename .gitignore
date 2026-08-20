@@ -1,0 +1,22 @@
+# Rust
+/backend/target/
+**/*.rs.bk
+
+# Node
+node_modules/
+/frontend/dist/
+.vite/
+
+# Ortam
+.env
+.env.local
+
+# Editör / OS
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+
+# npm scriptleriyle uretilenler
+/frontend/public/vendor/
+*.tsbuildinfo
