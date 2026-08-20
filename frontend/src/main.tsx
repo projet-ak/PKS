@@ -5,16 +5,18 @@ import { BrowserRouter, Link, Navigate, Route, Routes } from "react-router-dom";
 import Kiosk from "./pages/Kiosk";
 import Employees from "./pages/Employees";
 import Daily from "./pages/Daily";
+import Cards from "./pages/Cards";
 import "./styles.css";
 
 function App() {
   return (
     <BrowserRouter>
-      <nav className="nav">
+      <nav className="nav no-print">
         <span className="brand">PTS</span>
         <Link to="/kiosk">Kiosk</Link>
         <Link to="/personel">Personel</Link>
         <Link to="/puantaj">Puantaj</Link>
+        <Link to="/kart">Kart Uret</Link>
       </nav>
       <main className="page">
         <Routes>
@@ -22,6 +24,7 @@ function App() {
           <Route path="/kiosk" element={<Kiosk />} />
           <Route path="/personel" element={<Employees />} />
           <Route path="/puantaj" element={<Daily />} />
+          <Route path="/kart" element={<Cards />} />
         </Routes>
       </main>
     </BrowserRouter>

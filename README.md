@@ -97,15 +97,12 @@ Adım adım kurulum: [deploy/README.md](deploy/README.md).
 ## ArUco kartları
 
 Sözlük: **ARUCO_MIP_36h12** (backend varsayılanı ve kiosk sayfası aynı olmalı).
-Marker görsellerini üretmek için OpenCV yeterlidir:
+Kartları panelin **Kart Üret** sayfasından üretebilirsin: ID (ve istersen
+personel adını) gir, **Yazdır**'a bas. Marker çizimini `js-aruco2`'nin kendi
+`generateSVG` fonksiyonu ürettiği için kiosk okumasıyla birebir uyumludur ve
+sunucuya OpenCV kurmak gerekmez.
 
-```python
-import cv2
-d = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_ARUCO_MIP_36h12)
-cv2.imwrite("kart_7.png", cv2.aruco.generateImageMarker(d, 7, 600))
-```
-
-Üretilen ID'yi panelde ilgili personele **Tanımla** ile bağla.
+Aynı ID'yi panelde ilgili personele **Tanımla** ile bağlamayı unutma.
 
 ## Durum
 
