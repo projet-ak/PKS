@@ -26,6 +26,19 @@ export default function Kiosk() {
     let cancelled = false;
 
     async function start() {
+      // Tarayicilar kameraya yalnizca guvenli baglamda izin verir: HTTPS ya
+      // da localhost. Aksi halde navigator.mediaDevices hic tanimlanmaz ve
+      // ham hata mesaji ("Cannot read properties of undefined") sebebi
+      // anlatmaz.
+      if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
+        setError(
+          `Kamera yalnizca HTTPS uzerinden kullanilabilir. Sayfa su an ` +
+            `${window.location.protocol}//${window.location.host} adresinden ` +
+            `acik. https://${window.location.host}/kiosk adresini kullanin.`,
+        );
+        return;
+      }
+
       try {
         stream = await navigator.mediaDevices.getUserMedia({
           video: { width: 640, height: 480, facingMode: "environment" },
