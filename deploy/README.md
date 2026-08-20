@@ -10,8 +10,15 @@ Internet ──► aaPanel Nginx (SSL)
                           Docker: pts-api ──► pts-db (postgres:17)
 ```
 
-Postgres ve API portlari yalnizca `127.0.0.1`'e baglanir; internete
-dogrudan acik degildir. Tek giris kapisi Nginx'tir.
+Postgres hic port yayinlamaz; yalnizca compose agi uzerinden erisilir.
+API ise sadece `127.0.0.1:8080`'e baglanir. Internete acik tek kapi
+Nginx'tir.
+
+Veritabanina elle baglanmak icin:
+
+```bash
+docker compose exec db psql -U pts -d pts
+```
 
 ## 1. Kodu sunucuya al
 
@@ -92,5 +99,11 @@ docker compose logs -f api
 ```bash
 docker compose exec -T db pg_dump -U pts pts | gzip > pts-$(date +%F).sql.gz
 ```
+
+## Port cakismasi
+
+aaPanel bir PostgreSQL kurduysa 5432 zaten dolu olabilir. Bu yuzden compose
+dosyasi db icin port yayinlamaz. API'nin portu da doluysa `.env` ile
+degistirip Nginx'teki `proxy_pass` hedefini ayni degere cek.
 
 aaPanel > Cron ile bu komutu gunluk zamanlayabilirsin.

@@ -7,9 +7,10 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-pts}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pts}
       POSTGRES_DB: ${POSTGRES_DB:-pts}
-    ports:
-      # Yalnizca sunucu icinden erisilebilir; disariya acilmaz.
-      - "127.0.0.1:5432:5432"
+    # Port yayinlanmiyor: API veritabanina compose agi uzerinden db:5432
+    # olarak ulasir. Sunucuda baska bir Postgres 5432'yi tutuyor olabilir ve
+    # port cakismasi container'in ag kurulumunu bozar. Disaridan psql gerekirse:
+    #   docker compose exec db psql -U pts -d pts
     volumes:
       - pts-pgdata:/var/lib/postgresql/data
     healthcheck:
