@@ -42,7 +42,7 @@ async fn main() -> anyhow::Result<()> {
     tracing::info!("veritabani migration'lari uygulandi");
 
     // Uretimde frontend ile API ayni alan adindan servis edilir, o yuzden
-    // CORS katmani yalnizca PKS_ALLOWED_ORIGIN verildiginde eklenir.
+    // CORS katmani yalnizca PTS_ALLOWED_ORIGIN verildiginde eklenir.
     let cors = match &config.allowed_origin {
         Some(origin) => Some(
             CorsLayer::new()
@@ -61,7 +61,7 @@ async fn main() -> anyhow::Result<()> {
     let app = app.layer(TraceLayer::new_for_http());
 
     let listener = tokio::net::TcpListener::bind(&bind_addr).await?;
-    tracing::info!("PKS API dinlemede: http://{bind_addr}");
+    tracing::info!("PTS API dinlemede: http://{bind_addr}");
     axum::serve(listener, app).await?;
 
     Ok(())

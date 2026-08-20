@@ -56,7 +56,7 @@ unique index ile veritabanı seviyesinde garanti altındadır.
 | `GET` | `/api/attendance/daily?date=` | Günlük puantaj |
 
 `scan` yönü kendi belirler: personelin son hareketi `in` ise bu okuma `out`,
-değilse `in` olur. Aynı kart `PKS_SCAN_DEBOUNCE_SECONDS` içinde tekrar
+değilse `in` olur. Aynı kart `PTS_SCAN_DEBOUNCE_SECONDS` içinde tekrar
 okunursa yeni kayıt açılmaz (`duplicate_ignored: true` döner).
 
 ## Kurulum

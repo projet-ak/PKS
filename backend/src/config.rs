@@ -17,12 +17,12 @@ impl Config {
         Ok(Self {
             database_url: env::var("DATABASE_URL")
                 .map_err(|_| anyhow::anyhow!("DATABASE_URL tanimli degil"))?,
-            bind_addr: env::var("PKS_BIND_ADDR").unwrap_or_else(|_| "0.0.0.0:8080".into()),
-            scan_debounce_seconds: env::var("PKS_SCAN_DEBOUNCE_SECONDS")
+            bind_addr: env::var("PTS_BIND_ADDR").unwrap_or_else(|_| "0.0.0.0:8080".into()),
+            scan_debounce_seconds: env::var("PTS_SCAN_DEBOUNCE_SECONDS")
                 .ok()
                 .and_then(|v| v.parse().ok())
                 .unwrap_or(30),
-            allowed_origin: env::var("PKS_ALLOWED_ORIGIN")
+            allowed_origin: env::var("PTS_ALLOWED_ORIGIN")
                 .ok()
                 .filter(|v| !v.trim().is_empty()),
         })

@@ -27,10 +27,10 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Root olarak calistirmayalim.
-RUN useradd --system --create-home --uid 10001 pks
-USER pks
+RUN useradd --system --create-home --uid 10001 pts
+USER pts
 
-COPY --from=builder /app/backend/target/release/pks-backend /usr/local/bin/pks-backend
+COPY --from=builder /app/backend/target/release/pts-backend /usr/local/bin/pts-backend
 
 EXPOSE 8080
-CMD ["pks-backend"]
+CMD ["pts-backend"]

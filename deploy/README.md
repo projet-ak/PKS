@@ -7,7 +7,7 @@ Internet ──► aaPanel Nginx (SSL)
                 ├─ /      → frontend/dist (statik)
                 └─ /api   → 127.0.0.1:8080
                                  │
-                          Docker: pks-api ──► pks-db (postgres:17)
+                          Docker: pts-api ──► pts-db (postgres:17)
 ```
 
 Postgres ve API portlari yalnizca `127.0.0.1`'e baglanir; internete
@@ -17,8 +17,8 @@ dogrudan acik degildir. Tek giris kapisi Nginx'tir.
 
 ```bash
 cd /www/wwwroot
-git clone https://github.com/projet-ak/PKS.git pks
-cd pks
+git clone https://github.com/projet-ak/PKS.git pts
+cd pts
 cp .env.example .env
 ```
 
@@ -57,11 +57,11 @@ Cikti `frontend/dist/` altina duser.
 aaPanel > Web Sitesi > `pts.ernsaha.com.tr` > **Site dizini**:
 
 ```
-/www/wwwroot/pks/frontend/dist
+/www/wwwroot/pts/frontend/dist
 ```
 
 Ardindan **Konfigurasyon** sekmesinde, SSL server blogunun icine
-[`nginx-pks.conf`](nginx-pks.conf) dosyasindaki bloklari ekle ve Nginx'i
+[`nginx-pts.conf`](nginx-pts.conf) dosyasindaki bloklari ekle ve Nginx'i
 yeniden yukle.
 
 ## 5. Dogrula
@@ -75,7 +75,7 @@ Kamera yalnizca HTTPS uzerinden calisir; siteyi her zaman `https://` ile ac.
 ## Guncelleme
 
 ```bash
-cd /www/wwwroot/pks
+cd /www/wwwroot/pts
 git pull
 docker compose up -d --build          # backend degistiyse
 cd frontend && npm ci && npm run build # frontend degistiyse
@@ -90,7 +90,7 @@ docker compose logs -f api
 ## Veritabani yedegi
 
 ```bash
-docker compose exec -T db pg_dump -U pks pks | gzip > pks-$(date +%F).sql.gz
+docker compose exec -T db pg_dump -U pts pts | gzip > pts-$(date +%F).sql.gz
 ```
 
 aaPanel > Cron ile bu komutu gunluk zamanlayabilirsin.

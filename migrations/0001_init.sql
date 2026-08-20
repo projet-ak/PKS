@@ -1,4 +1,4 @@
--- PKS - Personel Kontrol Sistemi
+-- PTS - Personel Kontrol Sistemi
 -- Cekirdek sema: personel, ArUco kart eslesmesi, mesai, izin, vardiya.
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";

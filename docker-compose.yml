@@ -1,19 +1,19 @@
 services:
   db:
     image: postgres:17-alpine
-    container_name: pks-db
+    container_name: pts-db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-pks}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pks}
-      POSTGRES_DB: ${POSTGRES_DB:-pks}
+      POSTGRES_USER: ${POSTGRES_USER:-pts}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pts}
+      POSTGRES_DB: ${POSTGRES_DB:-pts}
     ports:
       # Yalnizca sunucu icinden erisilebilir; disariya acilmaz.
       - "127.0.0.1:5432:5432"
     volumes:
-      - pks-pgdata:/var/lib/postgresql/data
+      - pts-pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pks}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pts}"]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -22,20 +22,20 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    container_name: pks-api
+    container_name: pts-api
     restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgres://${POSTGRES_USER:-pks}:${POSTGRES_PASSWORD:-pks}@db:5432/${POSTGRES_DB:-pks}
-      PKS_BIND_ADDR: 0.0.0.0:8080
-      PKS_SCAN_DEBOUNCE_SECONDS: ${PKS_SCAN_DEBOUNCE_SECONDS:-30}
-      PKS_ALLOWED_ORIGIN: ${PKS_ALLOWED_ORIGIN:-}
+      DATABASE_URL: postgres://${POSTGRES_USER:-pts}:${POSTGRES_PASSWORD:-pts}@db:5432/${POSTGRES_DB:-pts}
+      PTS_BIND_ADDR: 0.0.0.0:8080
+      PTS_SCAN_DEBOUNCE_SECONDS: ${PTS_SCAN_DEBOUNCE_SECONDS:-30}
+      PTS_ALLOWED_ORIGIN: ${PTS_ALLOWED_ORIGIN:-}
       RUST_LOG: ${RUST_LOG:-info,sqlx=warn}
     ports:
       # Nginx ters proxy'si buraya baglanir; internete dogrudan acilmaz.
       - "127.0.0.1:8080:8080"
 
 volumes:
-  pks-pgdata:
+  pts-pgdata:
