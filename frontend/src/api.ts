@@ -44,10 +44,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  listEmployees: () => request<Employee[]>("/employees/"),
+  listEmployees: () => request<Employee[]>("/employees"),
 
   createEmployee: (body: Partial<Employee>) =>
-    request<Employee>("/employees/", { method: "POST", body: JSON.stringify(body) }),
+    request<Employee>("/employees", { method: "POST", body: JSON.stringify(body) }),
 
   assignCard: (employeeId: string, markerId: number) =>
     request(`/cards/employee/${employeeId}`, {

@@ -45,8 +45,8 @@ unique index ile veritabanı seviyesinde garanti altındadır.
 | Metot | Yol | Açıklama |
 |---|---|---|
 | `GET` | `/health` | Sağlık kontrolü |
-| `GET` | `/api/employees/` | Aktif personel listesi |
-| `POST` | `/api/employees/` | Personel ekle |
+| `GET` | `/api/employees` | Aktif personel listesi |
+| `POST` | `/api/employees` | Personel ekle |
 | `GET` | `/api/employees/{id}` | Personel detayı |
 | `DELETE` | `/api/employees/{id}` | Personeli pasife çek |
 | `POST` | `/api/cards/employee/{id}` | ArUco kart tanımla (öncekini iptal eder) |
