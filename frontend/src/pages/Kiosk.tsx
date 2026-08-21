@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+
 import { api, type ScanResponse } from "../api";
 
 // AR global olarak index.html'deki /vendor/aruco.js tarafindan tanimlanir.
@@ -10,6 +11,19 @@ const DICTIONARY = "ARUCO_MIP_36h12";
 /// kilit suresi. Sunucudaki debounce'un tamamlayicisi, yerine gecmez.
 const CLIENT_LOCK_MS = 3000;
 
+/// Kiosk ayarlari cihaza ozeldir: giris kapisindaki tablet ile cikistaki
+/// tablet ayni sayfayi acar, farkli ayarla calisir.
+const STORAGE_CAMERA = "pts.kiosk.cameraId";
+const STORAGE_MODE = "pts.kiosk.mode";
+
+type Mode = "auto" | "in" | "out";
+
+const MODE_LABELS: Record<Mode, string> = {
+  auto: "Otomatik (giris/cikis sirayla)",
+  in: "Sadece GIRIS",
+  out: "Sadece CIKIS",
+};
+
 export default function Kiosk() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -18,6 +32,30 @@ export default function Kiosk() {
   const [result, setResult] = useState<ScanResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [cameraReady, setCameraReady] = useState(false);
+  const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
+
+  const [cameraId, setCameraId] = useState<string>(
+    () => localStorage.getItem(STORAGE_CAMERA) ?? "",
+  );
+  const [mode, setMode] = useState<Mode>(
+    () => (localStorage.getItem(STORAGE_MODE) as Mode | null) ?? "auto",
+  );
+
+  // Yon secimi ref ile de tutulur: tarama dongusu efekt icinde kuruluyor ve
+  // kapanis uzerinden eski degeri gormemeli.
+  const modeRef = useRef<Mode>(mode);
+  modeRef.current = mode;
+
+  const chooseCamera = useCallback((id: string) => {
+    setCameraId(id);
+    localStorage.setItem(STORAGE_CAMERA, id);
+  }, []);
+
+  const chooseMode = useCallback((next: Mode) => {
+    setMode(next);
+    localStorage.setItem(STORAGE_MODE, next);
+    setResult(null);
+  }, []);
 
   useEffect(() => {
     const detector = new AR.Detector({ dictionaryName: DICTIONARY });
@@ -32,28 +70,42 @@ export default function Kiosk() {
       // anlatmaz.
       if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
         setError(
-          `Kamera yalnizca HTTPS uzerinden kullanilabilir. Sayfa su an ` +
-            `${window.location.protocol}//${window.location.host} adresinden ` +
-            `acik. https://${window.location.host}/kiosk adresini kullanin.`,
+          "Kamera yalnizca HTTPS uzerinden kullanilabilir. Sayfa su an " +
+            window.location.protocol +
+            "//" +
+            window.location.host +
+            " adresinden acik. https://" +
+            window.location.host +
+            "/kiosk adresini kullanin.",
         );
         return;
       }
 
       try {
         stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: 640, height: 480, facingMode: "environment" },
+          video: cameraId
+            ? { deviceId: { exact: cameraId }, width: 640, height: 480 }
+            : { width: 640, height: 480, facingMode: "environment" },
         });
         if (cancelled) {
           stream.getTracks().forEach((t) => t.stop());
           return;
         }
+
+        // Cihaz etiketleri ancak izin verildikten sonra dolu gelir, o yuzden
+        // listeyi akis basladiktan sonra okuyoruz.
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        setCameras(devices.filter((d) => d.kind === "videoinput"));
+
         const video = videoRef.current!;
         video.srcObject = stream;
         await video.play();
         setCameraReady(true);
+        setError(null);
         frameHandle = requestAnimationFrame(tick);
       } catch (e) {
-        setError(`Kamera acilamadi: ${(e as Error).message}`);
+        setCameraReady(false);
+        setError("Kamera acilamadi: " + (e as Error).message);
       }
     }
 
@@ -89,12 +141,17 @@ export default function Kiosk() {
       }
       lastSentRef.current = { markerId, at: now };
 
+      const current = modeRef.current;
       try {
         setError(null);
-        setResult(await api.scan(markerId));
+        setResult(
+          await api.scan(markerId, {
+            direction: current === "auto" ? undefined : current,
+          }),
+        );
       } catch (e) {
         setResult(null);
-        setError(`ArUco ${markerId}: ${(e as Error).message}`);
+        setError("ArUco " + markerId + ": " + (e as Error).message);
       }
     }
 
@@ -105,21 +162,46 @@ export default function Kiosk() {
       cancelAnimationFrame(frameHandle);
       stream?.getTracks().forEach((t) => t.stop());
     };
-  }, []);
+  }, [cameraId]);
 
   return (
     <section className="kiosk">
       <h1>Gecis Kiosku</h1>
-      <p className="hint">Personel kartinizi kameraya gosterin.</p>
 
-      <div className="kiosk-view">
+      <div className="card form-row">
+        <label className="hint">Kamera</label>
+        <select value={cameraId} onChange={(e) => chooseCamera(e.target.value)}>
+          <option value="">Varsayilan (arka kamera)</option>
+          {cameras.map((c, i) => (
+            <option key={c.deviceId} value={c.deviceId}>
+              {c.label || "Kamera " + (i + 1)}
+            </option>
+          ))}
+        </select>
+
+        <label className="hint">Yon</label>
+        <select value={mode} onChange={(e) => chooseMode(e.target.value as Mode)}>
+          {(Object.keys(MODE_LABELS) as Mode[]).map((m) => (
+            <option key={m} value={m}>
+              {MODE_LABELS[m]}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <p className="hint">
+        Personel kartinizi kameraya gosterin. Secimler bu cihazda saklanir;
+        cikis kapisindaki cihazi "Sadece CIKIS" olarak ayarlayin.
+      </p>
+
+      <div className={"kiosk-view mode-" + mode}>
         <video ref={videoRef} playsInline muted className="hidden-video" />
         <canvas ref={canvasRef} className="kiosk-canvas" />
         {!cameraReady && !error && <p className="hint">Kamera baslatiliyor...</p>}
       </div>
 
       {result && (
-        <div className={`scan-result ${result.direction}`}>
+        <div className={"scan-result " + result.direction}>
           <strong>{result.full_name}</strong>
           <span className="sicil">{result.employee_no}</span>
           <span className="direction">

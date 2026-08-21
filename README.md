@@ -56,8 +56,10 @@ unique index ile veritabanı seviyesinde garanti altındadır.
 | `GET` | `/api/attendance/events` | Ham hareket listesi |
 | `GET` | `/api/attendance/daily?date=` | Günlük puantaj |
 
-`scan` yönü kendi belirler: personelin son hareketi `in` ise bu okuma `out`,
-değilse `in` olur. Aynı kart `PTS_SCAN_DEBOUNCE_SECONDS` içinde tekrar
+`scan` isteğinde `direction` verilirse (`in` / `out`) yön zorlanır; giriş ve
+çıkış için ayrı kamera kurulduğunda her cihaz kendi yönünü bildirir. Alan boş
+bırakılırsa yön kendiliğinden belirlenir: personelin son hareketi `in` ise bu
+okuma `out`, değilse `in` olur. Aynı kart `PTS_SCAN_DEBOUNCE_SECONDS` içinde tekrar
 okunursa yeni kayıt açılmaz (`duplicate_ignored: true` döner).
 
 ## Kurulum
@@ -86,7 +88,9 @@ Frontend:
 cd frontend && npm install && npm run dev
 ```
 
-Panel: http://localhost:5173 — Kiosk sayfası kamera izni ister. Tarayıcılar
+Panel: http://localhost:5173 — Kiosk sayfası kamera izni ister. Kiosk
+sayfasındaki kamera ve yön seçimi tarayıcıda saklanır, yani giriş ve çıkış
+cihazları aynı adresi açıp farklı ayarla çalışır. Tarayıcılar
 webcam'e yalnızca `localhost` veya HTTPS üzerinden izin verir; kiosk cihazını
 ağdan açacaksan sertifika gerekir.
 

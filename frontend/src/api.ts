@@ -65,10 +65,18 @@ export const api = {
   revokeCard: (employeeId: string) =>
     request(`/cards/employee/${employeeId}`, { method: "DELETE" }),
 
-  scan: (markerId: number, checkpointCode?: string) =>
+  /// direction verilmezse sunucu yonu son harekete gore belirler.
+  scan: (
+    markerId: number,
+    opts: { direction?: "in" | "out"; checkpointCode?: string } = {},
+  ) =>
     request<ScanResponse>("/attendance/scan", {
       method: "POST",
-      body: JSON.stringify({ marker_id: markerId, checkpoint_code: checkpointCode }),
+      body: JSON.stringify({
+        marker_id: markerId,
+        direction: opts.direction,
+        checkpoint_code: opts.checkpointCode,
+      }),
     }),
 
   daily: (date?: string) =>

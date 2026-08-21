@@ -86,9 +86,20 @@ async fn scan(
         }
     }
 
-    let direction = match holder.last_direction.as_deref() {
-        Some("in") => "out",
-        _ => "in",
+    // Sabit yonlu kiosk (ornegin cikis kapisi) kendi yonunu bildirir; aksi
+    // halde son hareketin tersini aliriz.
+    let direction = match body.direction.as_deref() {
+        Some("in") => "in",
+        Some("out") => "out",
+        Some(other) => {
+            return Err(ApiError::BadRequest(format!(
+                "gecersiz yon '{other}', 'in' veya 'out' olmali"
+            )))
+        }
+        None => match holder.last_direction.as_deref() {
+            Some("in") => "out",
+            _ => "in",
+        },
     };
 
     let checkpoint_id: Option<Uuid> = match &body.checkpoint_code {

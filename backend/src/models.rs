@@ -64,6 +64,10 @@ pub struct ScanRequest {
     #[serde(default = "default_dictionary")]
     pub dictionary: String,
     pub checkpoint_code: Option<String>,
+    /// "in" veya "out" verilirse yon zorlanir. Giris ve cikis icin ayri
+    /// kamera kuruldugunda her cihaz kendi yonunu bildirir. Bos birakilirsa
+    /// yon personelin son hareketine gore kendiliginden belirlenir.
+    pub direction: Option<String>,
 }
 
 /// Kioska donen cevap: kimin, hangi yonde kaydi acildi.
