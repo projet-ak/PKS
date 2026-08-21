@@ -152,7 +152,24 @@ th { color: var(--muted); font-weight: 600; font-size: 0.85rem; }
   .card-sheet { padding: 0; }
 }
 
-/* Sabit yonlu kioskta cerceve rengi, cihazin hangi kapida oldugunu
-   uzaktan bakinca belli eder. */
-.kiosk-view.mode-in .kiosk-canvas { border-color: var(--ok); }
-.kiosk-view.mode-out .kiosk-canvas { border-color: var(--warn); }
+/* Iki kamera yan yana; dar ekranda alt alta duser. */
+.kiosk-panes { display: grid; gap: 1rem; }
+.kiosk-panes.dual { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+
+.kiosk-pane {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.kiosk-pane h2 { font-size: 1rem; margin: 0 0 0.75rem; color: var(--muted); }
+.kiosk-pane .form-row { margin-bottom: 0.75rem; }
+.kiosk-pane select { max-width: 100%; }
+.kiosk-pane .kiosk-canvas { max-width: 100%; }
+
+/* Sabit yonlu panelde cerceve rengi, hangi kapinin izlendigini belli eder. */
+.kiosk-pane.mode-in .kiosk-canvas { border-color: var(--ok); }
+.kiosk-pane.mode-out .kiosk-canvas { border-color: var(--warn); }
+.kiosk-pane.mode-in h2 { color: var(--ok); }
+.kiosk-pane.mode-out h2 { color: var(--warn); }
