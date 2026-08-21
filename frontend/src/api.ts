@@ -11,6 +11,8 @@ export interface Employee {
   department_id: string | null;
   hired_on: string;
   is_active: boolean;
+  /// Aktif ArUco kartinin marker ID'si; kart tanimli degilse null.
+  marker_id: number | null;
 }
 
 export interface ScanResponse {
@@ -54,6 +56,14 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ marker_id: markerId }),
     }),
+
+  /// ArUco ID'yi personelin sicil numarasindan turetir. Kural sunucuda tek
+  /// yerde durur, boylece panel ile kart sayfasi ayrisamaz.
+  assignCardFromEmployeeNo: (employeeId: string) =>
+    request(`/cards/employee/${employeeId}/auto`, { method: "POST" }),
+
+  revokeCard: (employeeId: string) =>
+    request(`/cards/employee/${employeeId}`, { method: "DELETE" }),
 
   scan: (markerId: number, checkpointCode?: string) =>
     request<ScanResponse>("/attendance/scan", {

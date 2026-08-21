@@ -48,7 +48,7 @@ h1 { font-size: 1.4rem; margin: 0 0 1rem; }
 
 .form-row { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
 
-input {
+input, select {
   background: #0b1220;
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -68,6 +68,13 @@ button {
 }
 
 button:hover { filter: brightness(1.1); }
+
+/* Ikincil eylemler (kart iptali gibi) one cikmasin. */
+button.ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
 
 table { border-collapse: collapse; }
 th, td { text-align: left; padding: 0.5rem 0.6rem; border-bottom: 1px solid var(--border); }

@@ -13,14 +13,20 @@ pub fn router() -> Router<AppState> {
         .route("/{id}", get(detail).delete(deactivate))
 }
 
-const EMPLOYEE_COLUMNS: &str = "id, employee_no, first_name, last_name, email, phone, \
-     title, department_id, hired_on, is_active";
+/// Personel satirini aktif ArUco kartiyla birlikte okur.
+const EMPLOYEE_SELECT: &str = "SELECT e.id, e.employee_no, e.first_name, e.last_name, \
+     e.email, e.phone, e.title, e.department_id, e.hired_on, e.is_active, c.marker_id \
+       FROM employees e \
+       LEFT JOIN aruco_cards c ON c.employee_id = e.id AND c.revoked_at IS NULL";
+
+/// INSERT/UPDATE sonrasi ayni sekli dondurmek icin; kart alt sorguyla gelir.
+const EMPLOYEE_RETURNING: &str = "id, employee_no, first_name, last_name, email, phone, \
+     title, department_id, hired_on, is_active, \
+     (SELECT marker_id FROM aruco_cards \
+       WHERE employee_id = employees.id AND revoked_at IS NULL) AS marker_id";
 
 async fn list(State(state): State<AppState>) -> ApiResult<Json<Vec<Employee>>> {
-    let sql = format!(
-        "SELECT {EMPLOYEE_COLUMNS} FROM employees \
-         WHERE is_active ORDER BY last_name, first_name"
-    );
+    let sql = format!("{EMPLOYEE_SELECT} WHERE e.is_active ORDER BY e.last_name, e.first_name");
     let rows = sqlx::query_as::<_, Employee>(&sql).fetch_all(&state.db).await?;
     Ok(Json(rows))
 }
@@ -29,7 +35,7 @@ async fn detail(
     State(state): State<AppState>,
     Path(id): Path<Uuid>,
 ) -> ApiResult<Json<Employee>> {
-    let sql = format!("SELECT {EMPLOYEE_COLUMNS} FROM employees WHERE id = $1");
+    let sql = format!("{EMPLOYEE_SELECT} WHERE e.id = $1");
     let row = sqlx::query_as::<_, Employee>(&sql)
         .bind(id)
         .fetch_optional(&state.db)
@@ -50,7 +56,7 @@ async fn create(
         "INSERT INTO employees \
              (employee_no, first_name, last_name, email, phone, title, department_id, hired_on) \
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8) \
-         RETURNING {EMPLOYEE_COLUMNS}"
+         RETURNING {EMPLOYEE_RETURNING}"
     );
     let row = sqlx::query_as::<_, Employee>(&sql)
         .bind(&body.employee_no)
@@ -82,7 +88,7 @@ async fn deactivate(
 ) -> ApiResult<Json<Employee>> {
     let sql = format!(
         "UPDATE employees SET is_active = FALSE, updated_at = now() \
-         WHERE id = $1 RETURNING {EMPLOYEE_COLUMNS}"
+         WHERE id = $1 RETURNING {EMPLOYEE_RETURNING}"
     );
     let row = sqlx::query_as::<_, Employee>(&sql)
         .bind(id)

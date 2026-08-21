@@ -40,6 +40,27 @@ export default function Employees() {
     }
   }
 
+  /// ArUco ID'yi sicilden turetmeyi sunucuya birakir.
+  async function assignFromNo(employeeId: string) {
+    try {
+      setError(null);
+      await api.assignCardFromEmployeeNo(employeeId);
+      await reload();
+    } catch (err) {
+      setError((err as Error).message);
+    }
+  }
+
+  async function revoke(employeeId: string) {
+    try {
+      setError(null);
+      await api.revokeCard(employeeId);
+      await reload();
+    } catch (err) {
+      setError((err as Error).message);
+    }
+  }
+
   async function assign(employeeId: string) {
     const raw = markerInput[employeeId];
     const markerId = Number(raw);
@@ -51,6 +72,7 @@ export default function Employees() {
       setError(null);
       await api.assignCard(employeeId, markerId);
       setMarkerInput({ ...markerInput, [employeeId]: "" });
+      await reload();
     } catch (err) {
       setError((err as Error).message);
     }
@@ -102,7 +124,8 @@ export default function Employees() {
             <th>Ad Soyad</th>
             <th>Unvan</th>
             <th>Ise giris</th>
-            <th>ArUco kart</th>
+            <th>Kart</th>
+            <th>ArUco tanimla</th>
           </tr>
         </thead>
         <tbody>
@@ -114,21 +137,35 @@ export default function Employees() {
               </td>
               <td>{r.title ?? "-"}</td>
               <td>{r.hired_on}</td>
+              <td>
+                {r.marker_id === null ? (
+                  <span className="hint">yok</span>
+                ) : (
+                  <strong>{r.marker_id}</strong>
+                )}
+              </td>
               <td className="form-row">
+                <button onClick={() => void assignFromNo(r.id)}>Sicilden</button>
                 <input
-                  placeholder="ArUco ID"
+                  placeholder="Elle ID"
+                  style={{ minWidth: "6rem" }}
                   value={markerInput[r.id] ?? ""}
                   onChange={(e) =>
                     setMarkerInput({ ...markerInput, [r.id]: e.target.value })
                   }
                 />
                 <button onClick={() => void assign(r.id)}>Tanimla</button>
+                {r.marker_id !== null && (
+                  <button className="ghost" onClick={() => void revoke(r.id)}>
+                    Iptal
+                  </button>
+                )}
               </td>
             </tr>
           ))}
           {rows.length === 0 && (
             <tr>
-              <td colSpan={5} className="hint">
+              <td colSpan={6} className="hint">
                 Henuz personel yok.
               </td>
             </tr>

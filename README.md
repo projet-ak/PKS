@@ -50,6 +50,7 @@ unique index ile veritabanı seviyesinde garanti altındadır.
 | `GET` | `/api/employees/{id}` | Personel detayı |
 | `DELETE` | `/api/employees/{id}` | Personeli pasife çek |
 | `POST` | `/api/cards/employee/{id}` | ArUco kart tanımla (öncekini iptal eder) |
+| `POST` | `/api/cards/employee/{id}/auto` | Kartı sicil numarasından türetip tanımla |
 | `DELETE` | `/api/cards/employee/{id}` | Aktif kartı iptal et |
 | `POST` | `/api/attendance/scan` | Kiosk marker bildirimi |
 | `GET` | `/api/attendance/events` | Ham hareket listesi |
@@ -102,7 +103,14 @@ personel adını) gir, **Yazdır**'a bas. Marker çizimini `js-aruco2`'nin kendi
 `generateSVG` fonksiyonu ürettiği için kiosk okumasıyla birebir uyumludur ve
 sunucuya OpenCV kurmak gerekmez.
 
-Aynı ID'yi panelde ilgili personele **Tanımla** ile bağlamayı unutma.
+ArUco ID'yi elle vermek yerine **Sicilden** düğmesiyle sicil numarasından
+türetebilirsin: sicildeki rakamlar okunur, baştaki sıfırlar atılır (`00042` →
+`42`). Kural sunucuda tek yerde durur, panel ile kart sayfası ayrışamaz.
+
+Sözlükte 250 kod bulunduğu için geçerli aralık **0–249**. Sicil numaraların
+bunu aşıyorsa 1000 markerlı bir sözlüğe (`ARUCO_4X4_1000` gibi) geçmek
+gerekir; bu durumda backend'deki `MAX_MARKER_ID` ve kiosk/kart sayfasındaki
+`DICTIONARY` sabitleri birlikte değişmeli.
 
 ## Durum
 

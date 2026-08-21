@@ -20,6 +20,8 @@ pub struct Employee {
     pub department_id: Option<Uuid>,
     pub hired_on: NaiveDate,
     pub is_active: bool,
+    /// Personelin aktif ArUco kartinin marker ID'si; kart yoksa None.
+    pub marker_id: Option<i32>,
 }
 
 #[derive(Debug, Deserialize)]
