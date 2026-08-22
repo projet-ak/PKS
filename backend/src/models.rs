@@ -78,6 +78,10 @@ pub struct ScanResponse {
     pub employee_id: Uuid,
     pub employee_no: String,
     pub full_name: String,
+    /// Kiosk ekraninda kimin gectigi kadar hangi firmadan ve hangi gorevde
+    /// oldugu da gorunsun; kapidaki gorevli dogrulamayi buradan yapar.
+    pub company_name: Option<String>,
+    pub title: Option<String>,
     pub direction: String,
     pub occurred_at: DateTime<Utc>,
     /// Debounce penceresinde tekrar okundugu icin yeni kayit acilmadiysa true.

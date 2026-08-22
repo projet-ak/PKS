@@ -209,14 +209,22 @@ export default function KioskCamera({
 
       {result && (
         <div className={"scan-result " + result.direction}>
-          <strong>{result.full_name}</strong>
-          <span className="sicil">{result.employee_no}</span>
-          <span className="direction">
-            {result.direction === "in" ? "GIRIS" : "CIKIS"}
-          </span>
-          <span className="time">
-            {new Date(result.occurred_at).toLocaleTimeString("tr-TR")}
-          </span>
+          <div className="scan-head">
+            <strong>{result.full_name}</strong>
+            <span className="sicil">{result.employee_no}</span>
+            <span className="direction">
+              {result.direction === "in" ? "GIRIS" : "CIKIS"}
+            </span>
+            <span className="time">
+              {new Date(result.occurred_at).toLocaleTimeString("tr-TR")}
+            </span>
+          </div>
+          <div className="scan-meta">
+            {result.company_name && (
+              <span className="badge">{result.company_name}</span>
+            )}
+            {result.title && <span className="scan-title">{result.title}</span>}
+          </div>
           {result.duplicate_ignored && (
             <span className="hint">Zaten kaydedilmisti, tekrarlanmadi.</span>
           )}

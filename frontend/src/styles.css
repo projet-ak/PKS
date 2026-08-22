@@ -1011,14 +1011,32 @@ tbody tr:hover {
 
 .scan-result {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.9rem;
+  flex-direction: column;
+  gap: 0.45rem;
   margin-top: 0.9rem;
   padding: 0.85rem 1rem;
   border-radius: var(--radius-sm);
   border-left: 5px solid var(--text-soft);
   background: var(--bg-soft);
+}
+
+.scan-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.9rem;
+}
+
+.scan-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.scan-title {
+  font-size: 0.85rem;
+  color: var(--text-muted);
 }
 
 .scan-result strong {

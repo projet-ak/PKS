@@ -23,6 +23,8 @@ struct CardHolder {
     employee_id: Uuid,
     employee_no: String,
     full_name: String,
+    company_name: Option<String>,
+    title: Option<String>,
     last_direction: Option<String>,
     last_at: Option<DateTime<Utc>>,
 }
@@ -52,14 +54,27 @@ async fn scan(
         }
     };
 
-    let holder = sqlx::query_as::<_, (Uuid, String, String, Option<String>, Option<DateTime<Utc>>)>(
+    type HolderRow = (
+        Uuid,
+        String,
+        String,
+        Option<String>,
+        Option<String>,
+        Option<String>,
+        Option<DateTime<Utc>>,
+    );
+
+    let holder = sqlx::query_as::<_, HolderRow>(
         "SELECT e.id,
                 e.employee_no,
                 e.first_name || ' ' || e.last_name AS full_name,
+                co.name AS company_name,
+                e.title,
                 last_ev.direction::text,
                 last_ev.occurred_at
            FROM aruco_cards c
            JOIN employees e ON e.id = c.employee_id
+           LEFT JOIN companies co ON co.id = e.company_id
            LEFT JOIN LATERAL (
                 SELECT direction, occurred_at
                   FROM attendance_events
@@ -76,13 +91,19 @@ async fn scan(
     .bind(&body.dictionary)
     .fetch_optional(&state.db)
     .await?
-    .map(|(employee_id, employee_no, full_name, last_direction, last_at)| CardHolder {
-        employee_id,
-        employee_no,
-        full_name,
-        last_direction,
-        last_at,
-    })
+    .map(
+        |(employee_id, employee_no, full_name, company_name, title, last_direction, last_at)| {
+            CardHolder {
+                employee_id,
+                employee_no,
+                full_name,
+                company_name,
+                title,
+                last_direction,
+                last_at,
+            }
+        },
+    )
     .ok_or_else(|| ApiError::NotFound)?;
 
     let now = Utc::now();
@@ -97,6 +118,8 @@ async fn scan(
                 employee_id: holder.employee_id,
                 employee_no: holder.employee_no,
                 full_name: holder.full_name,
+                company_name: holder.company_name,
+                title: holder.title,
                 direction: last_direction.clone(),
                 occurred_at: last_at,
                 duplicate_ignored: true,
@@ -146,6 +169,8 @@ async fn scan(
         employee_id: holder.employee_id,
         employee_no: holder.employee_no,
         full_name: holder.full_name,
+        company_name: holder.company_name,
+        title: holder.title,
         direction: direction.to_string(),
         occurred_at,
         duplicate_ignored: false,

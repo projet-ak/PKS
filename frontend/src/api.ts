@@ -55,6 +55,8 @@ export interface ScanResponse {
   employee_id: string;
   employee_no: string;
   full_name: string;
+  company_name: string | null;
+  title: string | null;
   direction: "in" | "out";
   occurred_at: string;
   duplicate_ignored: boolean;
