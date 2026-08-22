@@ -83,3 +83,15 @@ pub fn read(photo_dir: &str, relative: &str) -> Result<Vec<u8>, ApiError> {
 
     std::fs::read(PathBuf::from(photo_dir).join(candidate)).map_err(|_| ApiError::NotFound)
 }
+
+/// Dizin var mi ve yazilabiliyor mu? Acilista bir kez sinanir.
+pub fn check_writable(photo_dir: &str) -> Result<(), String> {
+    let dir = PathBuf::from(photo_dir);
+    std::fs::create_dir_all(&dir).map_err(|e| format!("dizin olusturulamadi: {e}"))?;
+
+    let probe = dir.join(".write-test");
+    std::fs::write(&probe, b"ok").map_err(|e| format!("yazma denemesi basarisiz: {e}"))?;
+    let _ = std::fs::remove_file(&probe);
+
+    Ok(())
+}

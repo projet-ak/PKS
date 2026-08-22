@@ -50,6 +50,17 @@ async fn main() -> anyhow::Result<()> {
         ),
     }
 
+    // Fotograf dizinine yazamiyorsak bunu acilista soyleyelim; aksi halde
+    // gecisler kaydedilir ama goruntuler sessizce kaybolur.
+    match photos::check_writable(&config.photo_dir) {
+        Ok(()) => tracing::info!(dir = %config.photo_dir, "fotograf dizini hazir"),
+        Err(e) => tracing::error!(
+            dir = %config.photo_dir,
+            error = %e,
+            "fotograf dizinine yazilamiyor; gecis goruntuleri saklanmayacak"
+        ),
+    }
+
     if config.allow_anonymous_kiosk {
         tracing::warn!(
             "PTS_ALLOW_ANONYMOUS_KIOSK acik: kiosk cihaz anahtari olmadan kayit acabilir"

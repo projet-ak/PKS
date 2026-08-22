@@ -29,6 +29,12 @@ RUN apt-get update \
 
 # Root olarak calistirmayalim.
 RUN useradd --system --create-home --uid 10001 pts
+
+# Gecis fotograflarinin dizini. Bos bir named volume bu yola baglandiginda
+# Docker imajdaki dizinin sahipligini kopyalar; olusturmazsak birim root'a
+# ait olur ve uygulama yazamaz.
+RUN mkdir -p /data/photos && chown -R pts:pts /data
+
 USER pts
 
 COPY --from=builder /app/backend/target/release/pts-backend /usr/local/bin/pts-backend

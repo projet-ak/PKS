@@ -120,6 +120,19 @@ docker compose logs -f api
 docker compose exec -T db pg_dump -U pts pts | gzip > pts-$(date +%F).sql.gz
 ```
 
+## Fotograflar kaydedilmiyorsa
+
+Uygulama root olarak calismaz. `pts-photos` birimi uygulamadan once
+olusturulduysa root'a ait kalir ve yazma reddedilir; loglarda
+"fotograf dizinine yazilamiyor" satiri gorunur. Birimin sahibini duzeltmek
+yeterli, veri kaybi olmaz:
+
+```bash
+docker compose stop api
+docker run --rm -v pts_pts-photos:/data/photos alpine   chown -R 10001:10001 /data/photos
+docker compose up -d api
+```
+
 ## Port cakismasi
 
 aaPanel bir PostgreSQL kurduysa 5432 zaten dolu olabilir. Bu yuzden compose
