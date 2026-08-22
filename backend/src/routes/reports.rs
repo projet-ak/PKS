@@ -24,6 +24,15 @@ use crate::AppState;
 const LOGO_HOLDING: &[u8] = include_bytes!("../../assets/ern-holding.png");
 const LOGO_TAAHHUT: &[u8] = include_bytes!("../../assets/ern-taahhut.png");
 
+/// Logolarin sayfadaki hedef yuksekligi (piksel). Kaynak dosyalar 3500px
+/// genisliginde; olcegi sabit vermek yerine goruntunun kendi boyutundan
+/// hesapliyoruz ki logo degistiginde cikti bozulmasin.
+const LOGO_HEIGHT_PX: f64 = 34.0;
+
+/// Sistemin fikir sahibi ve gelistiricisi; cikti kurum disina da gidiyor.
+const CONCEPT_BY: &str = "Concept: Omer Faruk Kaya";
+const DEVELOPED_BY: &str = "Developed by: Tayyar Akbulut";
+
 /// ERN marka yesili.
 const ERN: Color = Color::RGB(0x00584E);
 const ERN_SOFT: Color = Color::RGB(0xEEF3F2);
@@ -103,19 +112,22 @@ fn build_workbook(
     workbook.save_to_buffer()
 }
 
+/// Logoyu hedef yukseklige gore olcekler; en-boy orani korunur.
+fn scaled_logo(bytes: &[u8]) -> Result<Image, rust_xlsxwriter::XlsxError> {
+    let image = Image::new_from_buffer(bytes)?;
+    let scale = LOGO_HEIGHT_PX / image.height();
+    Ok(image.set_scale_height(scale).set_scale_width(scale))
+}
+
 fn write_header(
     sheet: &mut Worksheet,
     from: NaiveDate,
     to: NaiveDate,
     company: Option<&str>,
 ) -> Result<(), rust_xlsxwriter::XlsxError> {
-    // Logolar satir yuksekligini asmasin diye olceklendiriliyor.
-    let holding = Image::new_from_buffer(LOGO_HOLDING)?.set_scale_height(0.38).set_scale_width(0.38);
-    let taahhut = Image::new_from_buffer(LOGO_TAAHHUT)?.set_scale_height(0.38).set_scale_width(0.38);
-
-    sheet.set_row_height(0, 46)?;
-    sheet.insert_image(0, 0, &holding)?;
-    sheet.insert_image(0, 2, &taahhut)?;
+    sheet.set_row_height(0, 30)?;
+    sheet.insert_image(0, 0, &scaled_logo(LOGO_HOLDING)?)?;
+    sheet.insert_image(0, 2, &scaled_logo(LOGO_TAAHHUT)?)?;
 
     let title = Format::new()
         .set_bold()
@@ -272,6 +284,11 @@ fn write_table(
     if rows.is_empty() {
         sheet.write_with_format(start + 1, 0, "Bu donemde hareket yok.", &cell)?;
     }
+
+    let credit = Format::new().set_font_size(8).set_font_color(Color::Gray);
+    let credit_row = start + rows.len().max(1) as u32 + 2;
+    sheet.write_with_format(credit_row, 0, CONCEPT_BY, &credit)?;
+    sheet.write_with_format(credit_row + 1, 0, DEVELOPED_BY, &credit)?;
 
     // Baslik satiri kaydirmada sabit kalsin ve filtre kutulari acilsin.
     sheet.set_freeze_panes(start + 1, 0)?;

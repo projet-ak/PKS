@@ -13,5 +13,7 @@ export const LOGOS = {
   taahhutColor,
 };
 
-/// Alt bilgilerde ve giris ekraninda gosterilen gelistirici ibaresi.
+/// Alt bilgilerde ve giris ekraninda gosterilen ibareler. Ingilizce
+/// tutuluyor; cikti ve ekranlar kurum disina da gidebiliyor.
+export const CONCEPT = "Omer Faruk Kaya";
 export const DEVELOPER = "Tayyar Akbulut";

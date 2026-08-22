@@ -10,7 +10,7 @@ import {
 } from "react-router-dom";
 
 import { AuthProvider, useAuth } from "./auth";
-import { DEVELOPER, LOGOS } from "./logos";
+import { CONCEPT, DEVELOPER, LOGOS } from "./logos";
 import Cards from "./pages/Cards";
 import Companies from "./pages/Companies";
 import Dashboard from "./pages/Dashboard";
@@ -137,7 +137,7 @@ function Shell({ children }: { children: React.ReactNode }) {
         </header>
         <main className="page">{children}</main>
         <footer className="app-foot">
-          PTS &middot; Gelistirici: {DEVELOPER}
+          PTS &middot; Concept: {CONCEPT} &middot; Developed by: {DEVELOPER}
         </footer>
       </div>
     </div>

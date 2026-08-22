@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { useAuth } from "../auth";
-import { DEVELOPER, LOGOS } from "../logos";
+import { CONCEPT, DEVELOPER, LOGOS } from "../logos";
 
 /// Sol paneldeki yuzen sekiller. Konum ve sure sabit tutuldu; rastgele
 /// uretilseydi her renderda yerleri degisir, animasyon sicrardi.
@@ -202,7 +202,9 @@ export default function Login() {
         <p className="login-footer">
           ERN Holding &middot; ERN Taahhüt
           <br />
-          Gelistirici: {DEVELOPER}
+          Concept: {CONCEPT}
+          <br />
+          Developed by: {DEVELOPER}
         </p>
       </div>
     </div>
