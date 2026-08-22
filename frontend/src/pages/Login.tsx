@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 import { useAuth } from "../auth";
+import { DEVELOPER, LOGOS } from "../logos";
 
 export default function Login() {
   const { login } = useAuth();
@@ -26,8 +27,8 @@ export default function Login() {
     <div className="login">
       <div className="login-left">
         <div className="login-logos">
-          <img src="/logo/ern-holding-beyaz.png" alt="ERN Holding" />
-          <img src="/logo/ern-taahhut-beyaz.png" alt="ERN Taahhut" />
+          <img src={LOGOS.holdingWhite} alt="ERN Holding" />
+          <img src={LOGOS.taahhutWhite} alt="ERN Taahhüt" />
         </div>
         <div>
           <h2>Personel Takip Sistemi</h2>
@@ -66,7 +67,11 @@ export default function Login() {
             {busy ? "Kontrol ediliyor..." : "Giris"}
           </button>
 
-          <p className="login-foot">ERN Holding &middot; ERN Taahhut</p>
+          <p className="login-foot">
+            ERN Holding &middot; ERN Taahhüt
+            <br />
+            Gelistirici: {DEVELOPER}
+          </p>
         </form>
       </div>
     </div>

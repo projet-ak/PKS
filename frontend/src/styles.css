@@ -282,6 +282,16 @@ a {
   padding: 1.5rem;
   max-width: 1200px;
   width: 100%;
+  flex: 1;
+}
+
+/* Sayfa altinda kalan ince ibare seridi. */
+.app-foot {
+  margin-top: auto;
+  padding: 0.9rem 1.5rem;
+  border-top: 1px solid var(--border);
+  color: var(--text-soft);
+  font-size: 0.75rem;
 }
 
 /* ═══════════════════════════════════════════════════ Bilesenler ═══ */
@@ -638,7 +648,8 @@ tbody tr:hover {
   /* Yazdirirken yalnizca kart kalsin. */
   .no-print,
   .sidebar,
-  .topbar {
+  .topbar,
+  .app-foot {
     display: none !important;
   }
   body {

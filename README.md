@@ -118,8 +118,8 @@ Böylece hangi geçişin hangi kapıda olduğu da kayda düşer.
 
 ERN tasarım dili kullanılır: marka yeşili `#00584E`, koyu yeşil gradyanlı
 sidebar, açık zemin, Outfit tipografisi — Beton Takip Sistemi ile aynı görsel
-sistem, iki uygulama yan yana tutarlı durur. Logolar `frontend/public/logo/`
-altındadır.
+sistem, iki uygulama yan yana tutarlı durur. Logolar `frontend/src/assets/` altındadır ve Vite tarafından paketlenir;
+böylece sunucuda ayrı bir dosya yolu ayarı gerekmez.
 
 ## Sunucuya kurulum
 

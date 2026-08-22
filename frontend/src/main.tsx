@@ -10,6 +10,7 @@ import {
 } from "react-router-dom";
 
 import { AuthProvider, useAuth } from "./auth";
+import { DEVELOPER, LOGOS } from "./logos";
 import Cards from "./pages/Cards";
 import Checkpoints from "./pages/Checkpoints";
 import Daily from "./pages/Daily";
@@ -66,7 +67,7 @@ function Shell({ children }: { children: React.ReactNode }) {
     <div className="app">
       <aside className="sidebar">
         <div className="sidebar-brand">
-          <img src="/logo/ern-holding-beyaz.png" alt="ERN" />
+          <img src={LOGOS.holdingWhite} alt="ERN" />
           <div className="sidebar-brand-label">
             <strong>PTS</strong>
             <span>Personel Takip</span>
@@ -118,12 +119,15 @@ function Shell({ children }: { children: React.ReactNode }) {
           <span className="topbar-title">{title}</span>
           <div className="topbar-right">
             <div className="company-logos">
-              <img src="/logo/ern-holding.png" alt="ERN Holding" />
-              <img src="/logo/ern-taahhut.png" alt="ERN Taahhut" />
+              <img src={LOGOS.holdingColor} alt="ERN Holding" />
+              <img src={LOGOS.taahhutColor} alt="ERN Taahhüt" />
             </div>
           </div>
         </header>
         <main className="page">{children}</main>
+        <footer className="app-foot">
+          PTS &middot; Gelistirici: {DEVELOPER}
+        </footer>
       </div>
     </div>
   );
