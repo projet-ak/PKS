@@ -1,11 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { api, type Employee } from "../api";
-
-// AR global olarak index.html'deki /vendor/aruco.js tarafindan tanimlanir.
-
-/// Kiosk ve backend ile ayni sozluk kullanilmali.
-const DICTIONARY = "ARUCO_MIP_36h12";
+import MarkerCard, { DICTIONARY, markerRange } from "../MarkerCard";
 
 export default function Cards() {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -14,8 +10,7 @@ export default function Cards() {
   const [label, setLabel] = useState("");
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  const dictionary = useMemo(() => new AR.Dictionary(DICTIONARY), []);
-  const maxId = dictionary.codeList.length - 1;
+  const maxId = useMemo(() => markerRange().max, []);
 
   useEffect(() => {
     api
@@ -36,20 +31,6 @@ export default function Cards() {
     }
   }
 
-  const { svg, error } = useMemo(() => {
-    const id = Number(markerId);
-    if (markerId === "" || Number.isNaN(id) || !Number.isInteger(id) || id < 0) {
-      return { svg: null, error: "Gecerli bir tam sayi girin." };
-    }
-    try {
-      // Marker cizimini kutuphanenin kendisi uretir; bit sirasini biz
-      // yorumlamayiz, boylece kiosk okumasiyla birebir uyumlu olur.
-      return { svg: dictionary.generateSVG(id), error: null };
-    } catch (e) {
-      return { svg: null, error: (e as Error).message ?? String(e) };
-    }
-  }, [dictionary, markerId]);
-
   const selectedEmployee = employees.find((e) => e.id === selected);
   const cardless = selectedEmployee && selectedEmployee.marker_id === null;
   const mismatch =
@@ -62,6 +43,7 @@ export default function Cards() {
       <h1 className="no-print">ArUco Kart Uret</h1>
 
       <div className="card no-print">
+        <div className="card-title">Kart bilgileri</div>
         <div className="form-row">
           <select value={selected} onChange={(e) => pickEmployee(e.target.value)}>
             <option value="">Personel sec...</option>
@@ -87,9 +69,7 @@ export default function Cards() {
             placeholder="Kart uzerine yazilacak ad"
             style={{ minWidth: "16rem" }}
           />
-          <button onClick={() => window.print()} disabled={!svg}>
-            Yazdir
-          </button>
+          <button onClick={() => window.print()}>Yazdir</button>
         </div>
       </div>
 
@@ -114,21 +94,11 @@ export default function Cards() {
         </p>
       )}
 
-      {error && <p className="error-text no-print">{error}</p>}
-
-      {svg && (
-        <div className="card-sheet">
-          <div
-            className="marker"
-            // Icerik kutuphanenin urettigi sabit SVG; disaridan veri gelmiyor.
-            dangerouslySetInnerHTML={{ __html: svg }}
-          />
-          <div className="card-label">
-            {label && <strong>{label}</strong>}
-            <span className="hint">ArUco ID: {markerId}</span>
-          </div>
-        </div>
-      )}
+      <MarkerCard
+        markerId={markerId}
+        label={label}
+        sublabel={selectedEmployee?.company_name ?? undefined}
+      />
     </section>
   );
 }

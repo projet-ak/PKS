@@ -134,6 +134,12 @@ export const api = {
   createEmployee: (body: Record<string, unknown>) =>
     request<Employee>("/employees", { method: "POST", body: JSON.stringify(body) }),
 
+  updateEmployee: (id: string, body: Record<string, unknown>) =>
+    request<Employee>(`/employees/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(body),
+    }),
+
   assignCard: (employeeId: string, markerId: number) =>
     request(`/cards/employee/${employeeId}`, {
       method: "POST",

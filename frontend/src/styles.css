@@ -1069,6 +1069,33 @@ tbody tr:hover {
   color: var(--err);
 }
 
+/* ═══════════════════════════════════════════════════════ Modal ═══ */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(13, 46, 40, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  z-index: 50;
+}
+
+.modal {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  padding: 1.4rem;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 /* ═══════════════════════════════════════════════════ Kart uret ═══ */
 
 .card-sheet {
@@ -1107,6 +1134,22 @@ tbody tr:hover {
   .topbar,
   .app-foot {
     display: none !important;
+  }
+
+  /* Modal icindeki kart yazdirilabilmeli: ortu kalkar, kutu duz akar. */
+  .modal-backdrop {
+    position: static;
+    background: none;
+    padding: 0;
+    display: block;
+  }
+
+  .modal {
+    box-shadow: none;
+    padding: 0;
+    max-width: none;
+    max-height: none;
+    overflow: visible;
   }
   body {
     background: #fff;

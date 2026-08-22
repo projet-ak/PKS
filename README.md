@@ -57,6 +57,7 @@ unique index ile veritabanı seviyesinde garanti altındadır.
 | `GET` | `/api/employees` | Aktif personel listesi |
 | `POST` | `/api/employees` | Personel ekle |
 | `GET` | `/api/employees/{id}` | Personel detayı |
+| `PUT` | `/api/employees/{id}` | Personel bilgilerini güncelle |
 | `DELETE` | `/api/employees/{id}` | Personeli pasife çek |
 | `POST` | `/api/cards/employee/{id}` | ArUco kart tanımla (öncekini iptal eder) |
 | `POST` | `/api/cards/employee/{id}/auto` | Kartı sicil numarasından türetip tanımla |
