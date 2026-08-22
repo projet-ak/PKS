@@ -424,94 +424,532 @@ tbody tr:hover {
   color: var(--text-soft);
 }
 
-/* ═══════════════════════════════════════════════════════ Giris ═══ */
+/* ======================================================= Giris === */
+/* Efektler Beton Takip Sistemi'nin giris ekranindan alindi: nabiz atan
+   radyal isiklar, yuzen sekiller, dalga parallax'i ve kademeli fadeUp. */
 
 .login {
-  display: grid;
-  grid-template-columns: 1.1fr 1fr;
+  display: flex;
   min-height: 100vh;
+  background: var(--ern-dark);
+  overflow: hidden;
 }
 
 .login-left {
-  background: linear-gradient(145deg, var(--ern-dark) 0%, var(--ern) 60%, var(--ern-light) 100%);
-  color: #fff;
-  padding: 3rem;
+  flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 2rem;
+  align-items: center;
+  padding: 3rem;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(145deg, var(--ern-dark) 0%, var(--ern) 60%, var(--ern-light) 100%);
 }
 
-.login-left h2 {
-  font-size: 2rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  margin: 0;
+/* Kosede yavasca nefes alan iki isik lekesi. */
+.login-left::before,
+.login-left::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  animation: pulse-bg 8s ease-in-out infinite;
 }
 
-.login-left p {
-  color: rgba(255, 255, 255, 0.75);
-  max-width: 34ch;
+.login-left::before {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(0, 200, 180, 0.18) 0%, transparent 70%);
+  top: -200px;
+  right: -200px;
 }
 
-.login-logos {
+.login-left::after {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(201, 168, 76, 0.12) 0%, transparent 70%);
+  bottom: -150px;
+  left: -100px;
+  animation-duration: 10s;
+  animation-direction: reverse;
+}
+
+@keyframes pulse-bg {
+  0%,
+  100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+.hex {
+  position: absolute;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  animation: hexFloat linear infinite;
+  transform-origin: center;
+}
+
+@keyframes hexFloat {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0.6; }
+  50% { opacity: 0.15; }
+  100% { transform: translateY(-100px) rotate(180deg); opacity: 0.6; }
+}
+
+.waves {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.waves svg { width: 100%; height: 100%; }
+
+.wave-parallax > use {
+  animation: waveMove 12s cubic-bezier(0.55, 0.5, 0.45, 0.5) infinite;
+}
+.wave-parallax > use:nth-child(1) { animation-delay: -2s; animation-duration: 9s; }
+.wave-parallax > use:nth-child(2) { animation-delay: -4s; animation-duration: 13s; }
+.wave-parallax > use:nth-child(3) { animation-delay: -3s; animation-duration: 17s; }
+.wave-parallax > use:nth-child(4) { animation-delay: -5s; animation-duration: 21s; }
+
+@keyframes waveMove {
+  0% { transform: translate3d(-90px, 0, 0); }
+  100% { transform: translate3d(85px, 0, 0); }
+}
+
+.login-left-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 540px;
+  width: 100%;
+}
+
+.logo-lockup {
   display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  align-items: center;
+  justify-content: center;
+  gap: 1.6rem;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto 1.6rem;
+  animation: slideInLeft 0.6s ease backwards;
 }
 
-.login-logos img {
-  height: 46px;
+.logo-lockup img {
+  height: 72px;
   width: auto;
-  align-self: flex-start;
+  max-width: 210px;
+  object-fit: contain;
+  display: block;
 }
+
+.logo-sep {
+  width: 1px;
+  height: 58px;
+  align-self: center;
+  background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+}
+
+.brand-tagline {
+  font-size: 1.95rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.75rem;
+}
+
+.brand-tagline span {
+  background: linear-gradient(90deg, var(--ern-teal), #a8f0e8);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-sub {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 2.5rem;
+  line-height: 1.6;
+}
+
+.feature-pills {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  text-align: left;
+}
+
+.feature-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.8rem;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  animation: slideInLeft 0.5s ease backwards;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s,
+    border-color 0.2s, box-shadow 0.2s;
+  cursor: default;
+}
+
+.feature-pill:hover {
+  transform: translateY(-3px);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(0, 201, 177, 0.45);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+}
+
+.feature-pill:hover .feature-pill-icon {
+  transform: scale(1.1) rotate(-4deg);
+  background: rgba(0, 200, 180, 0.28);
+}
+
+.feature-pill:nth-child(1) { animation-delay: 0.1s; }
+.feature-pill:nth-child(2) { animation-delay: 0.18s; }
+.feature-pill:nth-child(3) { animation-delay: 0.26s; }
+.feature-pill:nth-child(4) { animation-delay: 0.34s; }
+
+.feature-pill.soon {
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.feature-pill.soon .feature-pill-icon {
+  background: rgba(201, 168, 76, 0.16);
+  color: var(--ern-gold);
+}
+
+.pill-soon-badge {
+  display: inline-block;
+  margin-left: 0.35rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #0d2e28;
+  background: var(--ern-gold);
+  padding: 0.05rem 0.4rem;
+  border-radius: 20px;
+}
+
+.feature-pill-icon {
+  width: 32px;
+  height: 32px;
+  background: rgba(0, 200, 180, 0.15);
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ern-teal);
+  font-size: 0.95rem;
+  flex-shrink: 0;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s;
+}
+
+.feature-pill-text {
+  font-size: 0.74rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+  line-height: 1.28;
+}
+
+.feature-pill-text strong {
+  display: block;
+  color: #fff;
+  font-size: 0.82rem;
+  margin-bottom: 0.05rem;
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* -- Sag taraf: form ------------------------------------------------ */
 
 .login-right {
-  background: var(--surface);
+  width: 480px;
+  flex-shrink: 0;
+  background: #fff;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 3rem;
+  padding: 3rem 3.5rem;
+  position: relative;
+  box-shadow: -20px 0 60px rgba(0, 0, 0, 0.2);
+}
+
+/* Sag panelin ogeleri sirayla belirir. */
+.login-right > * {
+  animation: fadeUp 0.55s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+}
+.login-right-logo { animation-delay: 0.05s; }
+.login-title { animation-delay: 0.13s; }
+.login-sub { animation-delay: 0.19s; }
+.login-form { animation-delay: 0.25s; }
+.login-footer { animation-delay: 0.33s; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+
+.login-right-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 2.5rem;
+}
+
+.login-right-logo-icon {
+  width: 42px;
+  height: 42px;
+  background: linear-gradient(135deg, var(--ern-light), var(--ern));
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(0, 88, 78, 0.3);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s;
+}
+
+.login-right-logo:hover .login-right-logo-icon {
+  transform: rotate(-6deg) scale(1.08);
+  box-shadow: 0 6px 20px rgba(0, 88, 78, 0.45);
+}
+
+.login-right-logo-text strong {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.login-right-logo-text span {
+  font-size: 0.72rem;
+  color: #5c7872;
+  font-weight: 500;
+}
+
+.login-title {
+  font-size: 1.65rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.35rem;
+}
+
+.login-sub {
+  font-size: 0.88rem;
+  color: #5c7872;
+  margin-bottom: 2rem;
 }
 
 .login-form {
-  width: 100%;
-  max-width: 22rem;
-  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
+  gap: 1.1rem;
 }
 
-.login-form h1 {
-  font-size: 1.6rem;
-  font-weight: 800;
-  margin-bottom: 0.2rem;
+.lbl {
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+  display: block;
 }
 
-.login-form input {
+.input-wrap {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-soft);
+  overflow: hidden;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.input-wrap:hover { border-color: #b7d3ce; }
+
+.input-wrap:focus-within {
+  border-color: var(--ern);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(0, 88, 78, 0.12);
+  transform: translateY(-1px);
+}
+
+.input-wrap-icon {
+  width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-soft);
+  flex-shrink: 0;
+  transition: color 0.2s, transform 0.2s;
+}
+
+.input-wrap:focus-within .input-wrap-icon {
+  color: var(--ern);
+  transform: scale(1.12);
+}
+
+.input-wrap input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  padding: 0.72rem 0.3rem 0.72rem 0;
+  font-size: 0.93rem;
+  outline: none;
+  box-shadow: none;
+}
+
+.input-wrap input::placeholder { color: #b0c8c4; }
+
+.input-wrap-btn {
+  background: none;
+  border: none;
+  padding: 0 0.75rem;
+  color: var(--text-soft);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s;
+  box-shadow: none;
+}
+
+.input-wrap-btn:hover:not(:disabled) {
+  color: var(--ern);
+  background: none;
+  filter: none;
+  box-shadow: none;
+}
+
+.btn-login {
   width: 100%;
+  height: 50px;
+  border-radius: 13px;
+  font-size: 1rem;
+  font-weight: 700;
+  box-shadow: 0 6px 20px rgba(0, 88, 78, 0.35);
+  transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  position: relative;
+  overflow: hidden;
 }
 
-.login-form button {
-  padding: 0.65rem;
-  font-size: 0.95rem;
+.btn-login::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), transparent);
+  opacity: 0;
+  transition: opacity 0.2s;
 }
 
-.login-foot {
+.btn-login:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(0, 88, 78, 0.45);
+}
+
+.btn-login:hover:not(:disabled)::after { opacity: 1; }
+
+.btn-login:active { transform: translateY(0); }
+
+.btn-login .btn-text span {
+  display: inline-block;
+  transition: transform 0.2s;
+}
+
+.btn-login:hover:not(:disabled) .btn-text span { transform: translateX(4px); }
+
+/* Istek suresince metin yerine donen halka. */
+.btn-login.loading {
+  pointer-events: none;
+  opacity: 1;
+}
+
+.btn-login.loading .btn-text { opacity: 0; }
+
+.btn-login.loading::before {
+  content: "";
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border: 2.5px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.login-alert {
+  padding: 0.72rem 1rem;
+  border-radius: 11px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+  animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
+}
+
+.login-alert.error {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.login-footer {
   margin-top: 2rem;
+  padding-top: 1.5rem;
   font-size: 0.75rem;
   color: var(--text-soft);
   text-align: center;
 }
 
+/* Hareketi azalt tercihine saygi: susleyici animasyonlari durdururuz. */
+@media (prefers-reduced-motion: reduce) {
+  .login-left::before,
+  .login-left::after,
+  .hex,
+  .wave-parallax > use,
+  .login-right > *,
+  .feature-pill,
+  .logo-lockup,
+  .login-alert {
+    animation: none;
+  }
+}
+
+@media (max-width: 980px) {
+  .brand-tagline { font-size: 1.7rem; }
+}
+
 @media (max-width: 860px) {
-  .login {
-    grid-template-columns: 1fr;
-  }
-  .login-left {
-    padding: 2rem;
-  }
+  .login-left { display: none; }
+  .login-right { width: 100%; padding: 2.5rem 2rem; }
+}
+
+@media (max-width: 420px) {
+  .login-right { padding: 2rem 1.25rem; }
 }
 
 /* ═══════════════════════════════════════════════════════ Kiosk ═══ */
