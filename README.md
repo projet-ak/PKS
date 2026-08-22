@@ -35,7 +35,7 @@ ID'sini alır.
 | `shifts`, `shift_assignments` | Vardiya tanımı ve günlük atama |
 | `leave_requests` | İzin talebi ve onay akışı |
 | `users` | Panel kullanıcıları ve rolleri |
-| `companies` | ERN Holding / ERN Taahhüt; personel ve geçiş noktası bu firmalara bağlanır |
+| `companies` | ERN Holding / ERN Taahhüt ile gelir, panelden yenisi eklenebilir; personel ve geçiş noktası bu firmalara bağlanır |
 
 Bir personelin aynı anda yalnızca **tek aktif** ArUco kartı olabilir; aynı
 marker ID de aynı anda yalnızca tek personele tanımlanabilir. Bunlar kısmi
@@ -48,9 +48,11 @@ unique index ile veritabanı seviyesinde garanti altındadır.
 | `GET` | `/health` | Sağlık kontrolü |
 | `POST` | `/api/auth/login` | Kullanıcı girişi, JWT döner |
 | `GET` | `/api/auth/me` | Oturumun hâlâ geçerli olduğunu doğrular |
-| `GET` | `/api/companies/` | Firma listesi |
-| `GET` | `/api/checkpoints/` | Geçiş noktaları (yönetici) |
-| `POST` | `/api/checkpoints/` | Geçiş noktası oluştur, cihaz anahtarı üretir (yönetici) |
+| `GET` | `/api/companies` | Firma listesi |
+| `POST` | `/api/companies` | Firma ekle (yönetici) |
+| `DELETE` | `/api/companies/{id}` | Firmayı pasife çek (yönetici) |
+| `GET` | `/api/checkpoints` | Geçiş noktaları (yönetici) |
+| `POST` | `/api/checkpoints` | Geçiş noktası oluştur, cihaz anahtarı üretir (yönetici) |
 | `POST` | `/api/checkpoints/whoami` | Cihaz anahtarını doğrular (kiosk kurulumu, oturum istemez) |
 | `GET` | `/api/employees` | Aktif personel listesi |
 | `POST` | `/api/employees` | Personel ekle |

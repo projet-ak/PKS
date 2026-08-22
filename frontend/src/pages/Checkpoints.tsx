@@ -10,6 +10,7 @@ export default function Checkpoints() {
   const [companyId, setCompanyId] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [shown, setShown] = useState<Record<string, boolean>>({});
+  const [copied, setCopied] = useState<string | null>(null);
 
   async function reload() {
     try {
@@ -28,9 +29,12 @@ export default function Checkpoints() {
     e.preventDefault();
     try {
       setError(null);
-      await api.createCheckpoint(code, name, companyId || undefined);
+      const created = await api.createCheckpoint(code, name, companyId || undefined);
       setCode("");
       setName("");
+      // Yeni anahtari hemen gosteriyoruz: nokta zaten kiosku baglamak icin
+      // olusturuluyor, kullanicinin ayrica "Goster"e basmasi gereksiz.
+      setShown((prev) => ({ ...prev, [created.id]: true }));
       await reload();
     } catch (err) {
       setError((err as Error).message);
@@ -108,9 +112,12 @@ export default function Checkpoints() {
                   {shown[r.id] && (
                     <button
                       className="ghost"
-                      onClick={() => void navigator.clipboard.writeText(r.api_key)}
+                      onClick={() => {
+                        void navigator.clipboard.writeText(r.api_key);
+                        setCopied(r.id);
+                      }}
                     >
-                      Kopyala
+                      {copied === r.id ? "Kopyalandi" : "Kopyala"}
                     </button>
                   )}
                 </td>

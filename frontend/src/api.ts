@@ -6,6 +6,9 @@ export interface Company {
   code: string;
   name: string;
   logo_path: string | null;
+  is_active: boolean;
+  /// Firmaya bagli aktif personel sayisi.
+  employee_count: number;
 }
 
 export interface Employee {
@@ -73,6 +76,15 @@ export function setToken(token: string | null) {
   authToken = token;
 }
 
+/// axum'da nest("/api/x") altina kayitli "/" rotasi yalnizca /api/x yolunu
+/// karsilar; /api/x/ 404 doner. Sondaki egik cizgiyi burada tek yerde
+/// temizliyoruz ki her cagri noktasinda ayni hataya dusmeyelim.
+function normalize(path: string): string {
+  const [route, query] = path.split("?");
+  const trimmed = route.length > 1 ? route.replace(/\/+$/, "") : route;
+  return query ? `${trimmed}?${query}` : trimmed;
+}
+
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -80,7 +92,7 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   };
   if (authToken) headers.Authorization = `Bearer ${authToken}`;
 
-  const res = await fetch(`/api${path}`, { ...init, headers });
+  const res = await fetch(`/api${normalize(path)}`, { ...init, headers });
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({ error: res.statusText }));
@@ -101,7 +113,16 @@ export const api = {
 
   me: () => request<UserInfo>("/auth/me"),
 
-  listCompanies: () => request<Company[]>("/companies/"),
+  listCompanies: () => request<Company[]>("/companies"),
+
+  createCompany: (code: string, name: string) =>
+    request<Company>("/companies", {
+      method: "POST",
+      body: JSON.stringify({ code, name }),
+    }),
+
+  deactivateCompany: (id: string) =>
+    request<Company>(`/companies/${id}`, { method: "DELETE" }),
 
   listEmployees: (companyId?: string) =>
     request<Employee[]>(
@@ -125,7 +146,7 @@ export const api = {
   revokeCard: (employeeId: string) =>
     request(`/cards/employee/${employeeId}`, { method: "DELETE" }),
 
-  listCheckpoints: () => request<Checkpoint[]>("/checkpoints/"),
+  listCheckpoints: () => request<Checkpoint[]>("/checkpoints"),
 
   /// Kiosk kurulumunda anahtarin gecerli olup olmadigini aninda sinar.
   /// Yanlis yapistirilan anahtar, kart okutulana kadar fark edilmesin diye.
@@ -136,7 +157,7 @@ export const api = {
     }),
 
   createCheckpoint: (code: string, name: string, companyId?: string) =>
-    request<Checkpoint>("/checkpoints/", {
+    request<Checkpoint>("/checkpoints", {
       method: "POST",
       body: JSON.stringify({ code, name, company_id: companyId ?? null }),
     }),

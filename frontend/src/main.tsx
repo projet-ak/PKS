@@ -12,6 +12,7 @@ import {
 import { AuthProvider, useAuth } from "./auth";
 import { DEVELOPER, LOGOS } from "./logos";
 import Cards from "./pages/Cards";
+import Companies from "./pages/Companies";
 import Checkpoints from "./pages/Checkpoints";
 import Daily from "./pages/Daily";
 import Employees from "./pages/Employees";
@@ -42,6 +43,10 @@ const NAV: { section: string; items: NavItem[] }[] = [
       { to: "/kart", label: "Kart Uret", icon: "▣" },
       { to: "/noktalar", label: "Gecis Noktalari", icon: "⚿", adminOnly: true },
     ],
+  },
+  {
+    section: "Yonetim",
+    items: [{ to: "/firmalar", label: "Firmalar", icon: "⌂", adminOnly: true }],
   },
 ];
 
@@ -165,6 +170,7 @@ function App() {
         <Route path="/kiosk" element={<Kiosk />} />
         <Route path="/kart" element={<Cards />} />
         <Route path="/noktalar" element={<Checkpoints />} />
+        <Route path="/firmalar" element={<Companies />} />
       </Routes>
     </Shell>
   );
