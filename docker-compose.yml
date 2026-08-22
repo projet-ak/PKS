@@ -37,10 +37,15 @@ services:
       PTS_ADMIN_USERNAME: ${PTS_ADMIN_USERNAME:-admin}
       PTS_ADMIN_PASSWORD: ${PTS_ADMIN_PASSWORD:-}
       PTS_ALLOW_ANONYMOUS_KIOSK: ${PTS_ALLOW_ANONYMOUS_KIOSK:-0}
+      PTS_PHOTO_DIR: /data/photos
       RUST_LOG: ${RUST_LOG:-info,sqlx=warn}
+    volumes:
+      # Gecis fotograflari veritabaninda degil, bu birimde birikir.
+      - pts-photos:/data/photos
     ports:
       # Nginx ters proxy'si buraya baglanir; internete dogrudan acilmaz.
       - "127.0.0.1:8080:8080"
 
 volumes:
   pts-pgdata:
+  pts-photos:

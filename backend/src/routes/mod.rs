@@ -3,7 +3,10 @@ pub mod auth;
 pub mod cards;
 pub mod checkpoints;
 pub mod companies;
+pub mod dashboard;
 pub mod employees;
+pub mod reports;
+pub mod users;
 
 use axum::routing::get;
 use axum::Router;
@@ -20,5 +23,8 @@ pub fn router(state: AppState) -> Router {
         .nest("/api/employees", employees::router())
         .nest("/api/cards", cards::router())
         .nest("/api/attendance", attendance::router())
+        .nest("/api/dashboard", dashboard::router())
+        .nest("/api/reports", reports::router())
+        .nest("/api/users", users::router())
         .with_state(state)
 }

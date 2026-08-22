@@ -127,3 +127,10 @@ dosyasi db icin port yayinlamaz. API'nin portu da doluysa `.env` ile
 degistirip Nginx'teki `proxy_pass` hedefini ayni degere cek.
 
 aaPanel > Cron ile bu komutu gunluk zamanlayabilirsin.
+
+Gecis fotograflari veritabaninda degil `pts-photos` biriminde durur; onlari
+ayrica yedeklemek gerekir:
+
+```bash
+docker run --rm -v pts_pts-photos:/data -v "$PWD":/backup alpine   tar czf /backup/pts-photos-$(date +%F).tar.gz -C /data .
+```

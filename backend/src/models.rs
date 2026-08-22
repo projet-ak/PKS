@@ -66,6 +66,9 @@ pub struct ScanRequest {
     pub marker_id: i32,
     #[serde(default = "default_dictionary")]
     pub dictionary: String,
+    /// Gecis anindaki kamera karesi (data URL veya duz base64). Diske
+    /// yazilir, veritabaninda yalnizca yolu durur.
+    pub photo: Option<String>,
     /// "in" veya "out" verilirse yon zorlanir. Giris ve cikis icin ayri
     /// kamera kuruldugunda her cihaz kendi yonunu bildirir. Bos birakilirsa
     /// yon personelin son hareketine gore kendiliginden belirlenir.
@@ -88,23 +91,3 @@ pub struct ScanResponse {
     pub duplicate_ignored: bool,
 }
 
-#[derive(Debug, Serialize, sqlx::FromRow)]
-pub struct AttendanceEvent {
-    pub id: i64,
-    pub employee_id: Uuid,
-    pub direction: String,
-    pub occurred_at: DateTime<Utc>,
-    pub marker_id: Option<i32>,
-    pub is_manual: bool,
-}
-
-/// Bir personelin bir gunku mesai ozeti.
-#[derive(Debug, Serialize)]
-pub struct DailySummary {
-    pub employee_id: Uuid,
-    pub full_name: String,
-    pub work_date: NaiveDate,
-    pub first_in: Option<DateTime<Utc>>,
-    pub last_out: Option<DateTime<Utc>>,
-    pub worked_minutes: i64,
-}

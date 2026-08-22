@@ -18,6 +18,8 @@ thiserror = "2"
 anyhow = "1"
 dotenvy = "0.15"
 argon2 = "0.5"
+base64 = "0.22"
+rust_xlsxwriter = { version = "0.90", features = ["chrono"] }
 jsonwebtoken = "9"
 rand = "0.9"
 tracing = "0.1"

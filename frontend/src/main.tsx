@@ -13,11 +13,13 @@ import { AuthProvider, useAuth } from "./auth";
 import { DEVELOPER, LOGOS } from "./logos";
 import Cards from "./pages/Cards";
 import Companies from "./pages/Companies";
+import Dashboard from "./pages/Dashboard";
 import Checkpoints from "./pages/Checkpoints";
 import Daily from "./pages/Daily";
 import Employees from "./pages/Employees";
 import Kiosk from "./pages/Kiosk";
 import Login from "./pages/Login";
+import Users from "./pages/Users";
 import "./styles.css";
 
 interface NavItem {
@@ -32,6 +34,7 @@ const NAV: { section: string; items: NavItem[] }[] = [
   {
     section: "Takip",
     items: [
+      { to: "/panel", label: "Genel Bakis", icon: "◫" },
       { to: "/puantaj", label: "Puantaj", icon: "▤" },
       { to: "/personel", label: "Personel", icon: "☰" },
     ],
@@ -46,7 +49,10 @@ const NAV: { section: string; items: NavItem[] }[] = [
   },
   {
     section: "Yonetim",
-    items: [{ to: "/firmalar", label: "Firmalar", icon: "⌂", adminOnly: true }],
+    items: [
+      { to: "/firmalar", label: "Firmalar", icon: "⌂", adminOnly: true },
+      { to: "/kullanicilar", label: "Kullanicilar", icon: "☺", adminOnly: true },
+    ],
   },
 ];
 
@@ -164,13 +170,15 @@ function App() {
   return (
     <Shell>
       <Routes>
-        <Route path="/" element={<Navigate to="/puantaj" replace />} />
+        <Route path="/" element={<Navigate to="/panel" replace />} />
+        <Route path="/panel" element={<Dashboard />} />
         <Route path="/puantaj" element={<Daily />} />
         <Route path="/personel" element={<Employees />} />
         <Route path="/kiosk" element={<Kiosk />} />
         <Route path="/kart" element={<Cards />} />
         <Route path="/noktalar" element={<Checkpoints />} />
         <Route path="/firmalar" element={<Companies />} />
+        <Route path="/kullanicilar" element={<Users />} />
       </Routes>
     </Shell>
   );

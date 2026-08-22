@@ -2,6 +2,7 @@ mod auth;
 mod config;
 mod error;
 mod models;
+mod photos;
 mod routes;
 
 use std::time::Duration;

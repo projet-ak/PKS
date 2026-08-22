@@ -15,6 +15,9 @@ pub struct Config {
     /// Hic kullanici yokken olusturulacak ilk yonetici hesabi.
     pub admin_username: String,
     pub admin_password: Option<String>,
+    /// Gecis fotograflarinin yazildigi dizin. Veritabaninda yalnizca yol
+    /// durur; dosyalar burada birikir ve ayri yedeklenir.
+    pub photo_dir: String,
     /// Kioskun checkpoint anahtari olmadan kayit acabilmesi. Sahaya cikmadan
     /// once kapatilmali; acikken adresi bilen herkes gecis olusturabilir.
     pub allow_anonymous_kiosk: bool,
@@ -45,6 +48,7 @@ impl Config {
             admin_password: env::var("PTS_ADMIN_PASSWORD")
                 .ok()
                 .filter(|v| !v.trim().is_empty()),
+            photo_dir: env::var("PTS_PHOTO_DIR").unwrap_or_else(|_| "/data/photos".into()),
             allow_anonymous_kiosk: env::var("PTS_ALLOW_ANONYMOUS_KIOSK")
                 .map(|v| v == "1" || v.eq_ignore_ascii_case("true"))
                 .unwrap_or(false),

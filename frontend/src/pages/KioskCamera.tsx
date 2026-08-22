@@ -11,6 +11,10 @@ const DICTIONARY = "ARUCO_MIP_36h12";
 /// kilit suresi. Sunucudaki debounce'un tamamlayicisi, yerine gecmez.
 const CLIENT_LOCK_MS = 3000;
 
+/// Kaydedilen karenin kalitesi. Kanit amacli oldugu icin yuksek cozunurluk
+/// gerekmiyor; 0.6 JPEG 640x480'de ~40 KB tutar.
+const PHOTO_QUALITY = 0.6;
+
 export type Mode = "auto" | "in" | "out";
 
 const MODE_LABELS: Record<Mode, string> = {
@@ -147,6 +151,18 @@ export default function KioskCamera({
       frameHandle = requestAnimationFrame(tick);
     }
 
+    /// Okuma anindaki kareyi JPEG'e cevirir. Kanit fotografi kaydin bir
+    /// parcasi ama zorunlu degil; uretilemezse gecis yine kaydedilir.
+    function capture(): string | undefined {
+      const canvas = canvasRef.current;
+      if (!canvas) return undefined;
+      try {
+        return canvas.toDataURL("image/jpeg", PHOTO_QUALITY);
+      } catch {
+        return undefined;
+      }
+    }
+
     async function handleMarker(markerId: number) {
       const last = lastSentRef.current;
       const now = Date.now();
@@ -163,6 +179,7 @@ export default function KioskCamera({
           await api.scan(markerId, {
             direction: current === "auto" ? undefined : current,
             checkpointKey,
+            photo: capture(),
           }),
         );
       } catch (e) {

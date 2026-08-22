@@ -465,6 +465,216 @@ td .cell-actions select {
   color: var(--text-soft);
 }
 
+/* ==================================================== Panel/stat === */
+
+.page-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.8rem;
+  margin-bottom: 1.1rem;
+}
+
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--ern-light);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.stat strong {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--ern);
+  line-height: 1.1;
+}
+
+.stat-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-soft);
+  font-weight: 600;
+}
+
+.stat.ok {
+  border-left-color: var(--ok);
+}
+.stat.ok strong {
+  color: var(--ok);
+}
+.stat.warn {
+  border-left-color: var(--warn);
+}
+.stat.warn strong {
+  color: var(--warn);
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+/* Basit sutun grafigi; ayri bir kutuphane cekmeye deger bir karmasikligi yok. */
+.chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.6rem;
+  height: 190px;
+  padding-top: 1.2rem;
+}
+
+.chart-col {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.3rem;
+  position: relative;
+}
+
+.chart-bar {
+  width: 100%;
+  min-height: 3px;
+  border-radius: 6px 6px 0 0;
+  background: linear-gradient(180deg, var(--ern-ultra), var(--ern));
+  transition: height var(--transition);
+}
+
+.chart-value {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.chart-label {
+  font-size: 0.7rem;
+  color: var(--text-soft);
+}
+
+.direction.in {
+  color: var(--ok);
+  font-weight: 700;
+}
+.direction.out {
+  color: var(--warn);
+  font-weight: 700;
+}
+
+.badge.ok {
+  background: rgba(26, 156, 91, 0.12);
+  color: var(--ok);
+}
+.badge.warn {
+  background: rgba(217, 119, 6, 0.14);
+  color: var(--warn);
+  margin-left: 0.4rem;
+}
+
+/* ================================================== Aktivite === */
+
+.modal.wide {
+  width: 720px;
+  max-width: 92vw;
+  align-items: stretch;
+}
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0.8rem;
+}
+
+.modal-head strong {
+  font-size: 1.05rem;
+}
+
+.modal-head button {
+  margin-left: auto;
+}
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  overflow-y: auto;
+  max-height: 60vh;
+}
+
+.activity {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--text-soft);
+  border-radius: var(--radius-sm);
+  background: var(--bg-soft);
+}
+
+.activity.in {
+  border-left-color: var(--ok);
+}
+.activity.out {
+  border-left-color: var(--warn);
+}
+
+.activity-photo {
+  width: 84px;
+  height: 63px;
+  object-fit: cover;
+  border-radius: 6px;
+  background: #04120f;
+  flex-shrink: 0;
+}
+
+.activity-photo.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.68rem;
+  color: var(--text-soft);
+  background: #e7eeec;
+}
+
+.activity-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.activity .direction {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+}
+
+.activity.in .direction {
+  color: var(--ok);
+}
+.activity.out .direction {
+  color: var(--warn);
+}
+
 /* ======================================================= Giris === */
 /* Efektler Beton Takip Sistemi'nin giris ekranindan alindi: nabiz atan
    radyal isiklar, yuzen sekiller, dalga parallax'i ve kademeli fadeUp. */

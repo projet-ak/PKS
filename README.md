@@ -64,7 +64,14 @@ unique index ile veritabanı seviyesinde garanti altındadır.
 | `DELETE` | `/api/cards/employee/{id}` | Aktif kartı iptal et |
 | `POST` | `/api/attendance/scan` | Kiosk marker bildirimi |
 | `GET` | `/api/attendance/events` | Ham hareket listesi |
-| `GET` | `/api/attendance/daily?date=` | Günlük puantaj |
+| `GET` | `/api/attendance/daily?from&to&company_id&employee_id` | Puantaj özeti |
+| `GET` | `/api/attendance/photo/{id}` | Geçiş anındaki kamera görüntüsü |
+| `GET` | `/api/dashboard` | Genel bakış sayıları ve son 7 gün |
+| `GET` | `/api/reports/timesheet.xlsx?from&to&company_id` | Excel puantaj raporu |
+| `GET` | `/api/users` | Kullanıcı listesi (yönetici) |
+| `POST` | `/api/users` | Kullanıcı ekle (yönetici) |
+| `PUT` | `/api/users/{id}` | Rol, durum veya parola güncelle (yönetici) |
+| `DELETE` | `/api/users/{id}` | Kullanıcıyı pasife çek (yönetici) |
 
 `scan` isteğinde `direction` verilirse (`in` / `out`) yön zorlanır; giriş ve
 çıkış için ayrı kamera kurulduğunda her cihaz kendi yönünü bildirir. Alan boş
@@ -109,8 +116,9 @@ ağdan açacaksan sertifika gerekir.
 Panelin tamamı oturum ister. `/api/auth/login` bir JWT döner, istemci bunu
 `Authorization: Bearer ...` başlığında taşır. Parolalar Argon2id ile saklanır.
 
-Roller: `admin` her şeyi yapar, `hr` ve `manager` veri girer, `viewer` yalnızca
-okur. İlk yönetici hesabı `PTS_ADMIN_USERNAME` / `PTS_ADMIN_PASSWORD` ile
+Roller: `admin` her şeyi yapar (kullanıcı, firma, geçiş noktası dahil), `hr` ve
+`manager` veri girer, `viewer` **yalnızca okur** — veri değiştiren her uç bu
+rolde 403 döner. İlk yönetici hesabı `PTS_ADMIN_USERNAME` / `PTS_ADMIN_PASSWORD` ile
 **sadece hiç kullanıcı yokken** oluşturulur.
 
 Kiosk cihazları oturum açmaz. Her cihaz bir geçiş noktasına bağlanır ve
@@ -121,6 +129,16 @@ anahtarın ilk kart okutulana kadar fark edilmemesi kötü olurdu. Panelde
 yönetici olarak açıldığında anahtarı kopyalamaya bile gerek yoktur, noktalar
 liste hâlinde gelir.
 Böylece hangi geçişin hangi kapıda olduğu da kayda düşer.
+
+## Geçiş fotoğrafları
+
+Kiosk her okumada o anki kamera karesini JPEG olarak gönderir. Görüntüler
+**veritabanında tutulmaz**; `PTS_PHOTO_DIR` altında gün bazlı klasörlenip
+diske yazılır, tabloda yalnızca göreli yol durur. Böylece veritabanı yedeği
+küçük kalır. Fotoğraf yazılamazsa geçiş yine kaydedilir — kanıt görüntüsü
+kaydın tamamlayıcısıdır, ön koşulu değil.
+
+Puantajdaki **Aktivite** penceresi her hareketi fotoğrafıyla birlikte gösterir.
 
 ## Arayüz
 

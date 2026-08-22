@@ -14,6 +14,7 @@ RUN mkdir -p backend/src \
     && rm -rf backend/src
 
 COPY migrations/ migrations/
+COPY backend/assets/ backend/assets/
 COPY backend/src/ backend/src/
 
 # Sahte main.rs ile uretilen binary'yi gecersiz kilip gercek kaynaktan derle.
