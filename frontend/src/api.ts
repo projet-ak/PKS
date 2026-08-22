@@ -127,6 +127,14 @@ export const api = {
 
   listCheckpoints: () => request<Checkpoint[]>("/checkpoints/"),
 
+  /// Kiosk kurulumunda anahtarin gecerli olup olmadigini aninda sinar.
+  /// Yanlis yapistirilan anahtar, kart okutulana kadar fark edilmesin diye.
+  validateCheckpointKey: (key: string) =>
+    request<{ code: string }>("/checkpoints/whoami", {
+      method: "POST",
+      headers: { "X-Checkpoint-Key": key },
+    }),
+
   createCheckpoint: (code: string, name: string, companyId?: string) =>
     request<Checkpoint>("/checkpoints/", {
       method: "POST",

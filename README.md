@@ -51,6 +51,7 @@ unique index ile veritabanı seviyesinde garanti altındadır.
 | `GET` | `/api/companies/` | Firma listesi |
 | `GET` | `/api/checkpoints/` | Geçiş noktaları (yönetici) |
 | `POST` | `/api/checkpoints/` | Geçiş noktası oluştur, cihaz anahtarı üretir (yönetici) |
+| `POST` | `/api/checkpoints/whoami` | Cihaz anahtarını doğrular (kiosk kurulumu, oturum istemez) |
 | `GET` | `/api/employees` | Aktif personel listesi |
 | `POST` | `/api/employees` | Personel ekle |
 | `GET` | `/api/employees/{id}` | Personel detayı |
@@ -112,6 +113,10 @@ okur. İlk yönetici hesabı `PTS_ADMIN_USERNAME` / `PTS_ADMIN_PASSWORD` ile
 Kiosk cihazları oturum açmaz. Her cihaz bir geçiş noktasına bağlanır ve
 isteklerinde `X-Checkpoint-Key` başlığını gönderir; anahtar sunucuda üretilir,
 panelin **Geçiş Noktaları** sayfasından kopyalanıp cihaza bir kez girilir.
+Anahtar kaydedilmeden önce sunucuya doğrulatılır; yanlış yapıştırılan bir
+anahtarın ilk kart okutulana kadar fark edilmemesi kötü olurdu. Panelde
+yönetici olarak açıldığında anahtarı kopyalamaya bile gerek yoktur, noktalar
+liste hâlinde gelir.
 Böylece hangi geçişin hangi kapıda olduğu da kayda düşer.
 
 ## Arayüz

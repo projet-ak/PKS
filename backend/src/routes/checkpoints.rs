@@ -1,18 +1,21 @@
 use axum::extract::{Path, State};
-use axum::routing::get;
+use axum::http::HeaderMap;
+use axum::routing::{get, post};
 use axum::{Json, Router};
 use chrono::{DateTime, Utc};
 use rand::distr::{Alphanumeric, SampleString};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::auth::CurrentUser;
+use crate::auth::{checkpoint_from_key, CurrentUser};
 use crate::error::{ApiError, ApiResult};
 use crate::AppState;
 
 pub fn router() -> Router<AppState> {
     Router::new()
         .route("/", get(list).post(create))
+        // Kiosk kurulumunda anahtarin gecerliligini sinar; oturum istemez.
+        .route("/whoami", post(whoami))
         .route("/{id}", axum::routing::delete(deactivate))
 }
 
@@ -105,4 +108,26 @@ async fn deactivate(
         .await?
         .ok_or(ApiError::NotFound)?;
     Ok(Json(row))
+}
+
+#[derive(Debug, Serialize)]
+pub struct CheckpointIdentity {
+    pub code: String,
+}
+
+/// Kiosk cihazinin anahtarini dogrular ve hangi noktaya bagli oldugunu soyler.
+///
+/// Kurulum sirasinda yanlis yapistirilan bir anahtarin kart okutulana kadar
+/// fark edilmemesi kotu olurdu; bu uc sayesinde hata aninda gorulur.
+async fn whoami(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+) -> ApiResult<Json<CheckpointIdentity>> {
+    let key = headers
+        .get("x-checkpoint-key")
+        .and_then(|v| v.to_str().ok())
+        .ok_or_else(|| ApiError::BadRequest("cihaz anahtari gonderilmedi".into()))?;
+
+    let (_, code) = checkpoint_from_key(&state.db, key).await?;
+    Ok(Json(CheckpointIdentity { code }))
 }

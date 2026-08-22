@@ -45,7 +45,11 @@ async fn scan(
     {
         Some(key) => Some(checkpoint_from_key(&state.db, key).await?),
         None if state.config.allow_anonymous_kiosk => None,
-        None => return Err(ApiError::Unauthorized),
+        None => {
+            return Err(ApiError::Forbidden(
+                "cihaz anahtari gonderilmedi; kiosk kurulumunu tamamlayin".into(),
+            ))
+        }
     };
 
     let holder = sqlx::query_as::<_, (Uuid, String, String, Option<String>, Option<DateTime<Utc>>)>(

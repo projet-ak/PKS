@@ -186,5 +186,10 @@ pub async fn checkpoint_from_key(
     .fetch_optional(db)
     .await?;
 
-    row.ok_or(ApiError::Unauthorized)
+    // Kiosk oturum acmaz; "giris yapin" demek yaniltici olurdu.
+    row.ok_or_else(|| {
+        ApiError::Forbidden(
+            "cihaz anahtari gecersiz veya pasif; panelden yeni anahtar alin".into(),
+        )
+    })
 }
