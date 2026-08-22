@@ -1,4 +1,12 @@
-// Backend ile konusan ince katman. Tum cagrilar Vite proxy'si uzerinden /api'ye gider.
+// Backend ile konusan ince katman. Tum cagrilar /api altina gider; uretimde
+// frontend ile API ayni alan adindan servis edildigi icin CORS yoktur.
+
+export interface Company {
+  id: string;
+  code: string;
+  name: string;
+  logo_path: string | null;
+}
 
 export interface Employee {
   id: string;
@@ -11,8 +19,33 @@ export interface Employee {
   department_id: string | null;
   hired_on: string;
   is_active: boolean;
+  company_id: string | null;
+  company_name: string | null;
   /// Aktif ArUco kartinin marker ID'si; kart tanimli degilse null.
   marker_id: number | null;
+}
+
+export interface UserInfo {
+  id: string;
+  username: string;
+  full_name: string | null;
+  role: string;
+  company_id: string | null;
+}
+
+export interface LoginResponse {
+  token: string;
+  user: UserInfo;
+}
+
+export interface Checkpoint {
+  id: string;
+  code: string;
+  name: string;
+  api_key: string;
+  company_id: string | null;
+  is_active: boolean;
+  last_seen_at: string | null;
 }
 
 export interface ScanResponse {
@@ -33,22 +66,49 @@ export interface DailySummary {
   worked_minutes: number;
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`/api${path}`, {
-    headers: { "Content-Type": "application/json" },
-    ...init,
-  });
+/// Oturum tokeni bellekte tutulur; sayfa yuklenirken AuthProvider doldurur.
+let authToken: string | null = null;
+
+export function setToken(token: string | null) {
+  authToken = token;
+}
+
+async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...((init.headers as Record<string, string>) ?? {}),
+  };
+  if (authToken) headers.Authorization = `Bearer ${authToken}`;
+
+  const res = await fetch(`/api${path}`, { ...init, headers });
+
   if (!res.ok) {
     const body = await res.json().catch(() => ({ error: res.statusText }));
     throw new Error(body.error ?? "istek basarisiz");
   }
-  return res.json() as Promise<T>;
+
+  // 204 gibi govdesiz cevaplarda json() patlar.
+  const text = await res.text();
+  return (text ? JSON.parse(text) : null) as T;
 }
 
 export const api = {
-  listEmployees: () => request<Employee[]>("/employees"),
+  login: (username: string, password: string) =>
+    request<LoginResponse>("/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ username, password }),
+    }),
 
-  createEmployee: (body: Partial<Employee>) =>
+  me: () => request<UserInfo>("/auth/me"),
+
+  listCompanies: () => request<Company[]>("/companies/"),
+
+  listEmployees: (companyId?: string) =>
+    request<Employee[]>(
+      companyId ? `/employees?company_id=${companyId}` : "/employees",
+    ),
+
+  createEmployee: (body: Record<string, unknown>) =>
     request<Employee>("/employees", { method: "POST", body: JSON.stringify(body) }),
 
   assignCard: (employeeId: string, markerId: number) =>
@@ -65,17 +125,25 @@ export const api = {
   revokeCard: (employeeId: string) =>
     request(`/cards/employee/${employeeId}`, { method: "DELETE" }),
 
-  /// direction verilmezse sunucu yonu son harekete gore belirler.
+  listCheckpoints: () => request<Checkpoint[]>("/checkpoints/"),
+
+  createCheckpoint: (code: string, name: string, companyId?: string) =>
+    request<Checkpoint>("/checkpoints/", {
+      method: "POST",
+      body: JSON.stringify({ code, name, company_id: companyId ?? null }),
+    }),
+
+  /// Kiosk cihazi kullanici oturumu yerine kendi anahtarini gonderir.
   scan: (
     markerId: number,
-    opts: { direction?: "in" | "out"; checkpointCode?: string } = {},
+    opts: { direction?: "in" | "out"; checkpointKey?: string } = {},
   ) =>
     request<ScanResponse>("/attendance/scan", {
       method: "POST",
+      headers: opts.checkpointKey ? { "X-Checkpoint-Key": opts.checkpointKey } : {},
       body: JSON.stringify({
         marker_id: markerId,
         direction: opts.direction,
-        checkpoint_code: opts.checkpointCode,
       }),
     }),
 

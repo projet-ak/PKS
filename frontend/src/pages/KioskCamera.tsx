@@ -24,11 +24,18 @@ interface Props {
   paneId: string;
   title: string;
   defaultMode: Mode;
+  /// Cihazi tanitan gecis noktasi anahtari. Sunucu bunsuz kayit acmaz.
+  checkpointKey: string;
 }
 
 /// Tek bir kamerayi surekli tarayan panel. Sayfada birden fazlasi ayni anda
 /// calisabilir; her biri ayri MediaStream ve ayri tarama dongusu kullanir.
-export default function KioskCamera({ paneId, title, defaultMode }: Props) {
+export default function KioskCamera({
+  paneId,
+  title,
+  defaultMode,
+  checkpointKey,
+}: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const lastSentRef = useRef<{ markerId: number; at: number } | null>(null);
@@ -155,6 +162,7 @@ export default function KioskCamera({ paneId, title, defaultMode }: Props) {
         setResult(
           await api.scan(markerId, {
             direction: current === "auto" ? undefined : current,
+            checkpointKey,
           }),
         );
       } catch (e) {
@@ -170,7 +178,7 @@ export default function KioskCamera({ paneId, title, defaultMode }: Props) {
       cancelAnimationFrame(frameHandle);
       stream?.getTracks().forEach((t) => t.stop());
     };
-  }, [cameraId]);
+  }, [cameraId, checkpointKey]);
 
   return (
     <div className={"kiosk-pane mode-" + mode}>

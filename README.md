@@ -35,6 +35,7 @@ ID'sini alır.
 | `shifts`, `shift_assignments` | Vardiya tanımı ve günlük atama |
 | `leave_requests` | İzin talebi ve onay akışı |
 | `users` | Panel kullanıcıları ve rolleri |
+| `companies` | ERN Holding / ERN Taahhüt; personel ve geçiş noktası bu firmalara bağlanır |
 
 Bir personelin aynı anda yalnızca **tek aktif** ArUco kartı olabilir; aynı
 marker ID de aynı anda yalnızca tek personele tanımlanabilir. Bunlar kısmi
@@ -45,6 +46,11 @@ unique index ile veritabanı seviyesinde garanti altındadır.
 | Metot | Yol | Açıklama |
 |---|---|---|
 | `GET` | `/health` | Sağlık kontrolü |
+| `POST` | `/api/auth/login` | Kullanıcı girişi, JWT döner |
+| `GET` | `/api/auth/me` | Oturumun hâlâ geçerli olduğunu doğrular |
+| `GET` | `/api/companies/` | Firma listesi |
+| `GET` | `/api/checkpoints/` | Geçiş noktaları (yönetici) |
+| `POST` | `/api/checkpoints/` | Geçiş noktası oluştur, cihaz anahtarı üretir (yönetici) |
 | `GET` | `/api/employees` | Aktif personel listesi |
 | `POST` | `/api/employees` | Personel ekle |
 | `GET` | `/api/employees/{id}` | Personel detayı |
@@ -93,6 +99,27 @@ sayfasındaki kamera ve yön seçimi tarayıcıda saklanır, yani giriş ve çı
 cihazları aynı adresi açıp farklı ayarla çalışır. Tarayıcılar
 webcam'e yalnızca `localhost` veya HTTPS üzerinden izin verir; kiosk cihazını
 ağdan açacaksan sertifika gerekir.
+
+## Yetkilendirme
+
+Panelin tamamı oturum ister. `/api/auth/login` bir JWT döner, istemci bunu
+`Authorization: Bearer ...` başlığında taşır. Parolalar Argon2id ile saklanır.
+
+Roller: `admin` her şeyi yapar, `hr` ve `manager` veri girer, `viewer` yalnızca
+okur. İlk yönetici hesabı `PTS_ADMIN_USERNAME` / `PTS_ADMIN_PASSWORD` ile
+**sadece hiç kullanıcı yokken** oluşturulur.
+
+Kiosk cihazları oturum açmaz. Her cihaz bir geçiş noktasına bağlanır ve
+isteklerinde `X-Checkpoint-Key` başlığını gönderir; anahtar sunucuda üretilir,
+panelin **Geçiş Noktaları** sayfasından kopyalanıp cihaza bir kez girilir.
+Böylece hangi geçişin hangi kapıda olduğu da kayda düşer.
+
+## Arayüz
+
+ERN tasarım dili kullanılır: marka yeşili `#00584E`, koyu yeşil gradyanlı
+sidebar, açık zemin, Outfit tipografisi — Beton Takip Sistemi ile aynı görsel
+sistem, iki uygulama yan yana tutarlı durur. Logolar `frontend/public/logo/`
+altındadır.
 
 ## Sunucuya kurulum
 

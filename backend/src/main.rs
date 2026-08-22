@@ -1,3 +1,4 @@
+mod auth;
 mod config;
 mod error;
 mod models;
@@ -41,6 +42,19 @@ async fn main() -> anyhow::Result<()> {
     sqlx::migrate!("../migrations").run(&db).await?;
     tracing::info!("veritabani migration'lari uygulandi");
 
+    match &config.admin_password {
+        Some(password) => auth::seed_admin(&db, &config.admin_username, password).await?,
+        None => tracing::warn!(
+            "PTS_ADMIN_PASSWORD tanimli degil; hic kullanici yoksa panele girilemez"
+        ),
+    }
+
+    if config.allow_anonymous_kiosk {
+        tracing::warn!(
+            "PTS_ALLOW_ANONYMOUS_KIOSK acik: kiosk cihaz anahtari olmadan kayit acabilir"
+        );
+    }
+
     // Uretimde frontend ile API ayni alan adindan servis edilir, o yuzden
     // CORS katmani yalnizca PTS_ALLOWED_ORIGIN verildiginde eklenir.
     let cors = match &config.allowed_origin {
@@ -48,7 +62,7 @@ async fn main() -> anyhow::Result<()> {
             CorsLayer::new()
                 .allow_origin(origin.parse::<HeaderValue>()?)
                 .allow_methods([Method::GET, Method::POST, Method::DELETE])
-                .allow_headers([header::CONTENT_TYPE]),
+                .allow_headers([header::CONTENT_TYPE, header::AUTHORIZATION]),
         ),
         None => None,
     };

@@ -33,6 +33,10 @@ services:
       PTS_BIND_ADDR: 0.0.0.0:8080
       PTS_SCAN_DEBOUNCE_SECONDS: ${PTS_SCAN_DEBOUNCE_SECONDS:-30}
       PTS_ALLOWED_ORIGIN: ${PTS_ALLOWED_ORIGIN:-}
+      PTS_JWT_SECRET: ${PTS_JWT_SECRET:?PTS_JWT_SECRET .env icinde tanimli olmali}
+      PTS_ADMIN_USERNAME: ${PTS_ADMIN_USERNAME:-admin}
+      PTS_ADMIN_PASSWORD: ${PTS_ADMIN_PASSWORD:-}
+      PTS_ALLOW_ANONYMOUS_KIOSK: ${PTS_ALLOW_ANONYMOUS_KIOSK:-0}
       RUST_LOG: ${RUST_LOG:-info,sqlx=warn}
     ports:
       # Nginx ters proxy'si buraya baglanir; internete dogrudan acilmaz.

@@ -1,124 +1,614 @@
+/* ════════════════════════════════════════════════════════════════════
+   PTS — Personel Takip Sistemi
+   ERN tasarim dili: marka yesili #00584E, sidebar duzeni, acik zemin.
+   Renk ve olcu degerleri Beton Takip Sistemi ile ayni tutuldu ki iki
+   uygulama yan yana kullanildiginda ayni sistem gibi hissettirsin.
+   ════════════════════════════════════════════════════════════════════ */
+
 :root {
-  --bg: #0f172a;
-  --panel: #1e293b;
-  --border: #334155;
-  --text: #e2e8f0;
-  --muted: #94a3b8;
-  --accent: #38bdf8;
-  --ok: #22c55e;
-  --warn: #f97316;
-  --err: #ef4444;
-  color-scheme: dark;
+  /* ERN marka renkleri */
+  --ern: #00584e;
+  --ern-dark: #003d35;
+  --ern-darker: #002920;
+  --ern-light: #007a6a;
+  --ern-ultra: #00a896;
+  --ern-teal: #00c9b1;
+  --ern-gold: #c9a84c;
+
+  /* Yuzeyler */
+  --bg: #eef3f2;
+  --bg-soft: #f5f9f8;
+  --surface: #ffffff;
+  --border: #dce8e6;
+  --border-soft: #e8f0ef;
+  --text: #0d2e28;
+  --text-muted: #4e7068;
+  --text-soft: #8aa9a3;
+  --tint: rgba(0, 88, 78, 0.07);
+
+  /* Durum renkleri */
+  --ok: #1a9c5b;
+  --warn: #d97706;
+  --err: #dc2626;
+
+  --sidebar-w: 260px;
+  --topbar-h: 62px;
+
+  --shadow-sm: 0 2px 8px rgba(0, 88, 78, 0.08), 0 1px 3px rgba(0, 88, 78, 0.04);
+  --shadow-md: 0 4px 20px rgba(0, 88, 78, 0.1), 0 2px 6px rgba(0, 88, 78, 0.06);
+  --shadow-lg: 0 8px 32px rgba(0, 88, 78, 0.12), 0 4px 12px rgba(0, 88, 78, 0.07);
+
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 20px;
+  --transition: 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+
+  color-scheme: light;
 }
 
-* { box-sizing: border-box; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
 body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: "Outfit", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
 }
 
-.nav {
+h1,
+h2,
+h3 {
+  letter-spacing: -0.02em;
+  margin: 0 0 0.75rem;
+}
+
+h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+h2 {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+a {
+  color: var(--ern);
+  text-decoration: none;
+}
+
+/* ═══════════════════════════════════════════════ Uygulama iskeleti ═══ */
+
+.app {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  background: linear-gradient(160deg, var(--ern-dark) 0%, var(--ern-darker) 100%);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.sidebar-brand {
+  min-height: var(--topbar-h);
   display: flex;
   align-items: center;
-  gap: 1.25rem;
-  padding: 0.9rem 1.5rem;
-  background: var(--panel);
-  border-bottom: 1px solid var(--border);
+  gap: 0.7rem;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.nav a { color: var(--muted); text-decoration: none; }
-.nav a:hover { color: var(--accent); }
-.brand { font-weight: 700; letter-spacing: 0.1em; color: var(--accent); }
+.sidebar-brand img {
+  height: 30px;
+  width: auto;
+}
 
-.page { max-width: 1000px; margin: 0 auto; padding: 1.5rem; }
+.sidebar-brand-label {
+  font-size: 0.9rem;
+  line-height: 1.2;
+}
 
-h1 { font-size: 1.4rem; margin: 0 0 1rem; }
+.sidebar-brand-label strong {
+  display: block;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
 
-.card {
-  background: var(--panel);
-  border: 1px solid var(--border);
+.sidebar-brand-label span {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.75rem 0;
+}
+
+.nav-section {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  color: rgba(255, 255, 255, 0.33);
+  padding: 0.9rem 1.25rem 0.35rem;
+  font-weight: 600;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 2px 0.6rem;
+  padding: 0.62rem 0.75rem;
   border-radius: 10px;
-  padding: 1rem;
-  margin-bottom: 1rem;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background var(--transition), color var(--transition);
+}
+
+.sidebar-link:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+}
+
+.sidebar-link.active {
+  background: linear-gradient(90deg, var(--ern-light), var(--ern));
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(0, 122, 106, 0.35);
+}
+
+.sidebar-link .icon {
+  width: 1.2rem;
+  text-align: center;
+  font-size: 1rem;
+}
+
+.sidebar-foot {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--ern-light), var(--ern-ultra));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.sidebar-user {
+  flex: 1;
+  min-width: 0;
+}
+
+.sidebar-user strong {
+  display: block;
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar-user span {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.logout {
+  background: rgba(255, 80, 80, 0.12);
+  border: 1px solid rgba(255, 80, 80, 0.18);
+  color: #ff8080;
+  border-radius: 9px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.logout:hover {
+  background: rgba(255, 80, 80, 0.22);
+}
+
+/* ── Ana alan ───────────────────────────────────────────────────── */
+
+.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  height: var(--topbar-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.topbar-title {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.company-logos {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.company-logos img {
+  height: 26px;
+  width: auto;
+  opacity: 0.85;
+}
+
+.page {
+  padding: 1.5rem;
+  max-width: 1200px;
   width: 100%;
 }
 
-.form-row { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+/* ═══════════════════════════════════════════════════ Bilesenler ═══ */
 
-input, select {
-  background: #0b1220;
+.card {
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 1.1rem;
+  margin-bottom: 1.1rem;
+}
+
+.card-title {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-soft);
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  align-items: center;
+}
+
+input,
+select {
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
   color: var(--text);
-  padding: 0.45rem 0.6rem;
+  padding: 0.5rem 0.7rem;
+  font: inherit;
+  font-size: 0.9rem;
   min-width: 8rem;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--ern-light);
+  box-shadow: 0 0 0 3px rgba(0, 88, 78, 0.12);
 }
 
 button {
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--ern-light) 0%, var(--ern) 100%);
   border: 0;
-  border-radius: 6px;
-  color: #06212e;
+  border-radius: var(--radius-sm);
+  color: #fff;
   cursor: pointer;
+  font: inherit;
+  font-size: 0.88rem;
   font-weight: 600;
-  padding: 0.45rem 0.9rem;
+  padding: 0.5rem 1rem;
+  transition: filter var(--transition), box-shadow var(--transition);
 }
 
-button:hover { filter: brightness(1.1); }
+button:hover:not(:disabled) {
+  filter: brightness(1.08);
+  box-shadow: var(--shadow-sm);
+}
 
-/* Ikincil eylemler (kart iptali gibi) one cikmasin. */
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 button.ghost {
   background: transparent;
   border: 1px solid var(--border);
-  color: var(--muted);
+  color: var(--text-muted);
 }
 
-table { border-collapse: collapse; }
-th, td { text-align: left; padding: 0.5rem 0.6rem; border-bottom: 1px solid var(--border); }
-th { color: var(--muted); font-weight: 600; font-size: 0.85rem; }
+button.ghost:hover:not(:disabled) {
+  background: var(--tint);
+  color: var(--ern);
+}
 
-.hint { color: var(--muted); font-size: 0.9rem; }
-.error-text { color: var(--err); }
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
 
-/* --- kiosk --- */
-.hidden-video { display: none; }
+th,
+td {
+  text-align: left;
+  padding: 0.6rem 0.7rem;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+th {
+  color: var(--text-soft);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+tbody tr:hover {
+  background: var(--bg-soft);
+}
+
+.hint {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.error-text {
+  color: var(--err);
+  font-size: 0.88rem;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--tint);
+  color: var(--ern);
+}
+
+.badge.muted {
+  background: #eef2f1;
+  color: var(--text-soft);
+}
+
+/* ═══════════════════════════════════════════════════════ Giris ═══ */
+
+.login {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  min-height: 100vh;
+}
+
+.login-left {
+  background: linear-gradient(145deg, var(--ern-dark) 0%, var(--ern) 60%, var(--ern-light) 100%);
+  color: #fff;
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2rem;
+}
+
+.login-left h2 {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 0;
+}
+
+.login-left p {
+  color: rgba(255, 255, 255, 0.75);
+  max-width: 34ch;
+}
+
+.login-logos {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.login-logos img {
+  height: 46px;
+  width: auto;
+  align-self: flex-start;
+}
+
+.login-right {
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 3rem;
+}
+
+.login-form {
+  width: 100%;
+  max-width: 22rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.login-form h1 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin-bottom: 0.2rem;
+}
+
+.login-form input {
+  width: 100%;
+}
+
+.login-form button {
+  padding: 0.65rem;
+  font-size: 0.95rem;
+}
+
+.login-foot {
+  margin-top: 2rem;
+  font-size: 0.75rem;
+  color: var(--text-soft);
+  text-align: center;
+}
+
+@media (max-width: 860px) {
+  .login {
+    grid-template-columns: 1fr;
+  }
+  .login-left {
+    padding: 2rem;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════ Kiosk ═══ */
+
+.hidden-video {
+  display: none;
+}
+
+.kiosk-panes {
+  display: grid;
+  gap: 1rem;
+}
+
+.kiosk-panes.dual {
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+.kiosk-pane {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 1.1rem;
+}
+
+.kiosk-pane h2 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-soft);
+}
+
+.kiosk-pane .form-row {
+  margin-bottom: 0.75rem;
+}
 
 .kiosk-canvas {
   width: 100%;
   max-width: 640px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: #000;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--border);
+  background: #04120f;
+  display: block;
+}
+
+/* Sabit yonlu panelde cerceve rengi, hangi kapinin izlendigini belli eder. */
+.kiosk-pane.mode-in .kiosk-canvas {
+  border-color: var(--ok);
+}
+.kiosk-pane.mode-out .kiosk-canvas {
+  border-color: var(--warn);
+}
+.kiosk-pane.mode-in h2 {
+  color: var(--ok);
+}
+.kiosk-pane.mode-out h2 {
+  color: var(--warn);
 }
 
 .scan-result {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 1rem;
-  margin-top: 1rem;
-  padding: 1rem 1.25rem;
-  border-radius: 10px;
-  border-left: 6px solid var(--muted);
-  background: var(--panel);
+  gap: 0.9rem;
+  margin-top: 0.9rem;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-sm);
+  border-left: 5px solid var(--text-soft);
+  background: var(--bg-soft);
 }
 
-.scan-result strong { font-size: 1.3rem; }
-.scan-result .sicil { color: var(--muted); }
-.scan-result .direction { font-weight: 700; letter-spacing: 0.08em; }
-.scan-result.in { border-left-color: var(--ok); }
-.scan-result.in .direction { color: var(--ok); }
-.scan-result.out { border-left-color: var(--warn); }
-.scan-result.out .direction { color: var(--warn); }
-.scan-result.error { border-left-color: var(--err); color: var(--err); }
+.scan-result strong {
+  font-size: 1.15rem;
+}
+.scan-result .sicil {
+  color: var(--text-soft);
+}
+.scan-result .direction {
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.scan-result.in {
+  border-left-color: var(--ok);
+  background: rgba(26, 156, 91, 0.07);
+}
+.scan-result.in .direction {
+  color: var(--ok);
+}
+.scan-result.out {
+  border-left-color: var(--warn);
+  background: rgba(217, 119, 6, 0.07);
+}
+.scan-result.out .direction {
+  color: var(--warn);
+}
+.scan-result.error {
+  border-left-color: var(--err);
+  background: rgba(220, 38, 38, 0.06);
+  color: var(--err);
+}
 
-/* --- kart uretme --- */
+/* ═══════════════════════════════════════════════════ Kart uret ═══ */
+
 .card-sheet {
   background: #fff;
-  border-radius: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   padding: 1.5rem;
   display: inline-flex;
   flex-direction: column;
@@ -137,39 +627,53 @@ th { color: var(--muted); font-weight: 600; font-size: 0.85rem; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  color: #0f172a;
   text-align: center;
 }
 
-.card-label strong { font-size: 1.1rem; }
-.card-label .hint { color: #475569; }
+.card-label strong {
+  font-size: 1.1rem;
+}
 
 @media print {
   /* Yazdirirken yalnizca kart kalsin. */
-  .no-print { display: none !important; }
-  body { background: #fff; }
-  .page { padding: 0; }
-  .card-sheet { padding: 0; }
+  .no-print,
+  .sidebar,
+  .topbar {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+  .page {
+    padding: 0;
+  }
+  .card-sheet {
+    border: 0;
+    padding: 0;
+  }
 }
 
-/* Iki kamera yan yana; dar ekranda alt alta duser. */
-.kiosk-panes { display: grid; gap: 1rem; }
-.kiosk-panes.dual { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+/* ── Dar ekran ──────────────────────────────────────────────────── */
 
-.kiosk-pane {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 1rem;
+@media (max-width: 780px) {
+  .app {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: static;
+    flex-direction: column;
+  }
+  .sidebar-nav {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0.5rem;
+  }
+  .nav-section {
+    display: none;
+  }
+  .company-logos {
+    display: none;
+  }
 }
-
-.kiosk-pane h2 { font-size: 1rem; margin: 0 0 0.75rem; color: var(--muted); }
-.kiosk-pane .form-row { margin-bottom: 0.75rem; }
-.kiosk-pane select { max-width: 100%; }
-.kiosk-pane .kiosk-canvas { max-width: 100%; }
-
-/* Sabit yonlu panelde cerceve rengi, hangi kapinin izlendigini belli eder. */
-.kiosk-pane.mode-in .kiosk-canvas { border-color: var(--ok); }
-.kiosk-pane.mode-out .kiosk-canvas { border-color: var(--warn); }
-.kiosk-pane.mode-in h2 { color: var(--ok); }
-.kiosk-pane.mode-out h2 { color: var(--warn); }

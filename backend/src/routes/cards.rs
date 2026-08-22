@@ -3,6 +3,7 @@ use axum::routing::post;
 use axum::{Json, Router};
 use uuid::Uuid;
 
+use crate::auth::CurrentUser;
 use crate::error::{ApiError, ApiResult};
 use crate::models::{ArucoCard, AssignCard};
 use crate::AppState;
@@ -52,9 +53,11 @@ pub fn marker_id_from_employee_no(employee_no: &str) -> Result<i32, ApiError> {
 /// boylece bir personelin her zaman tek gecerli karti olur.
 async fn assign(
     State(state): State<AppState>,
+    user: CurrentUser,
     Path(employee_id): Path<Uuid>,
     Json(body): Json<AssignCard>,
 ) -> ApiResult<Json<ArucoCard>> {
+    user.require_write()?;
     let card = assign_marker(&state, employee_id, body.marker_id, &body.dictionary).await?;
     Ok(Json(card))
 }
@@ -62,8 +65,10 @@ async fn assign(
 /// Kart ID'sini personelin sicil numarasindan turetip tanimlar.
 async fn assign_from_employee_no(
     State(state): State<AppState>,
+    user: CurrentUser,
     Path(employee_id): Path<Uuid>,
 ) -> ApiResult<Json<ArucoCard>> {
+    user.require_write()?;
     let employee_no: String =
         sqlx::query_scalar("SELECT employee_no FROM employees WHERE id = $1 AND is_active")
             .bind(employee_id)
@@ -135,8 +140,10 @@ async fn assign_marker(
 /// Kart kaybi/iade durumunda aktif karti iptal eder.
 async fn revoke(
     State(state): State<AppState>,
+    user: CurrentUser,
     Path(employee_id): Path<Uuid>,
 ) -> ApiResult<Json<ArucoCard>> {
+    user.require_write()?;
     let sql = format!(
         "UPDATE aruco_cards SET revoked_at = now() \
          WHERE employee_id = $1 AND revoked_at IS NULL RETURNING {CARD_COLUMNS}"

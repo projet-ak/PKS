@@ -1,10 +1,12 @@
 use axum::extract::{Query, State};
+use axum::http::HeaderMap;
 use axum::routing::{get, post};
 use axum::{Json, Router};
 use chrono::{DateTime, Duration, NaiveDate, Utc};
 use serde::Deserialize;
 use uuid::Uuid;
 
+use crate::auth::{checkpoint_from_key, CurrentUser};
 use crate::error::{ApiError, ApiResult};
 use crate::models::{AttendanceEvent, DailySummary, ScanRequest, ScanResponse};
 use crate::AppState;
@@ -32,8 +34,20 @@ struct CardHolder {
 /// tekrar okunursa yeni kayit acilmaz (kamera ayni kareyi birden cok gorur).
 async fn scan(
     State(state): State<AppState>,
+    headers: HeaderMap,
     Json(body): Json<ScanRequest>,
 ) -> ApiResult<Json<ScanResponse>> {
+    // Kiosk cihazi kullanici girisi yapmaz; kendi anahtariyla taninir.
+    // Anahtar ayni zamanda gecisin hangi noktada oldugunu da belirler.
+    let checkpoint = match headers
+        .get("x-checkpoint-key")
+        .and_then(|v| v.to_str().ok())
+    {
+        Some(key) => Some(checkpoint_from_key(&state.db, key).await?),
+        None if state.config.allow_anonymous_kiosk => None,
+        None => return Err(ApiError::Unauthorized),
+    };
+
     let holder = sqlx::query_as::<_, (Uuid, String, String, Option<String>, Option<DateTime<Utc>>)>(
         "SELECT e.id,
                 e.employee_no,
@@ -102,15 +116,7 @@ async fn scan(
         },
     };
 
-    let checkpoint_id: Option<Uuid> = match &body.checkpoint_code {
-        Some(code) => {
-            sqlx::query_scalar("SELECT id FROM checkpoints WHERE code = $1 AND is_active")
-                .bind(code)
-                .fetch_optional(&state.db)
-                .await?
-        }
-        None => None,
-    };
+    let checkpoint_id: Option<Uuid> = checkpoint.as_ref().map(|(id, _)| *id);
 
     let occurred_at: DateTime<Utc> = sqlx::query_scalar(
         "INSERT INTO attendance_events
@@ -155,6 +161,7 @@ fn default_limit() -> i64 {
 
 async fn events(
     State(state): State<AppState>,
+    _user: CurrentUser,
     Query(q): Query<EventQuery>,
 ) -> ApiResult<Json<Vec<AttendanceEvent>>> {
     let limit = q.limit.clamp(1, 1000);
@@ -184,6 +191,7 @@ pub struct DailyQuery {
 /// yapmadan gunu kapatan personelde son giristen sonrasi sayilmaz.
 async fn daily(
     State(state): State<AppState>,
+    _user: CurrentUser,
     Query(q): Query<DailyQuery>,
 ) -> ApiResult<Json<Vec<DailySummary>>> {
     let date = q.date.unwrap_or_else(|| Utc::now().date_naive());

@@ -20,6 +20,8 @@ pub struct Employee {
     pub department_id: Option<Uuid>,
     pub hired_on: NaiveDate,
     pub is_active: bool,
+    pub company_id: Option<Uuid>,
+    pub company_name: Option<String>,
     /// Personelin aktif ArUco kartinin marker ID'si; kart yoksa None.
     pub marker_id: Option<i32>,
 }
@@ -34,6 +36,7 @@ pub struct NewEmployee {
     pub title: Option<String>,
     pub department_id: Option<Uuid>,
     pub hired_on: NaiveDate,
+    pub company_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, sqlx::FromRow)]
@@ -63,7 +66,6 @@ pub struct ScanRequest {
     pub marker_id: i32,
     #[serde(default = "default_dictionary")]
     pub dictionary: String,
-    pub checkpoint_code: Option<String>,
     /// "in" veya "out" verilirse yon zorlanir. Giris ve cikis icin ayri
     /// kamera kuruldugunda her cihaz kendi yonunu bildirir. Bos birakilirsa
     /// yon personelin son hareketine gore kendiliginden belirlenir.
