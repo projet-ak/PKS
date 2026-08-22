@@ -142,6 +142,16 @@ function App() {
     return <Login />;
   }
 
+  // Kiosk cihazinda oturum yok: panel menusunu hic gostermeyiz, aksi halde
+  // tablette calisamayacagi sayfalara baglantilar durur.
+  if (!user && isPublic) {
+    return (
+      <main className="page">
+        <Kiosk />
+      </main>
+    );
+  }
+
   return (
     <Shell>
       <Routes>
