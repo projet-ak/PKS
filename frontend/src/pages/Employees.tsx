@@ -62,7 +62,9 @@ export default function Employees() {
       .then((list) => {
         setCompanies(list);
         // Ilk firmayi forma varsayilan yap; her personel bir firmaya ait olmali.
-        setForm((f) => (f.company_id ? f : { ...f, company_id: list[0]?.id ?? "" }));
+        setForm((f) =>
+          f.company_id ? f : { ...f, company_id: list[0]?.id ?? "" },
+        );
       })
       .catch((e: Error) => setError(e.message));
   }, []);
@@ -76,7 +78,10 @@ export default function Employees() {
     e.preventDefault();
     try {
       setError(null);
-      await api.createEmployee({ ...form, company_id: form.company_id || null });
+      await api.createEmployee({
+        ...form,
+        company_id: form.company_id || null,
+      });
       setForm({ ...EMPTY_FORM, company_id: form.company_id });
       await reload();
     } catch (err) {
@@ -201,7 +206,7 @@ export default function Employees() {
 
       {error && <p className="error-text no-print">{error}</p>}
 
-      <div className="card no-print">
+      <div className="card no-print table-scroll">
         <table>
           <thead>
             <tr>
@@ -222,26 +227,37 @@ export default function Employees() {
                     <input
                       value={editForm.employee_no}
                       onChange={(e) =>
-                        setEditForm({ ...editForm, employee_no: e.target.value })
+                        setEditForm({
+                          ...editForm,
+                          employee_no: e.target.value,
+                        })
                       }
                       style={{ minWidth: "6rem" }}
                     />
                   </td>
-                  <td className="form-row">
-                    <input
-                      value={editForm.first_name}
-                      onChange={(e) =>
-                        setEditForm({ ...editForm, first_name: e.target.value })
-                      }
-                      style={{ minWidth: "7rem" }}
-                    />
-                    <input
-                      value={editForm.last_name}
-                      onChange={(e) =>
-                        setEditForm({ ...editForm, last_name: e.target.value })
-                      }
-                      style={{ minWidth: "7rem" }}
-                    />
+                  <td>
+                    <div className="cell-actions">
+                      <input
+                        value={editForm.first_name}
+                        onChange={(e) =>
+                          setEditForm({
+                            ...editForm,
+                            first_name: e.target.value,
+                          })
+                        }
+                        style={{ minWidth: "7rem" }}
+                      />
+                      <input
+                        value={editForm.last_name}
+                        onChange={(e) =>
+                          setEditForm({
+                            ...editForm,
+                            last_name: e.target.value,
+                          })
+                        }
+                        style={{ minWidth: "7rem" }}
+                      />
+                    </div>
                   </td>
                   <td>
                     <select
@@ -277,11 +293,18 @@ export default function Employees() {
                     />
                   </td>
                   <td className="hint">{r.marker_id ?? "yok"}</td>
-                  <td className="form-row">
-                    <button onClick={() => void saveEdit(r.id)}>Kaydet</button>
-                    <button className="ghost" onClick={() => setEditingId(null)}>
-                      Vazgec
-                    </button>
+                  <td>
+                    <div className="cell-actions">
+                      <button onClick={() => void saveEdit(r.id)}>
+                        Kaydet
+                      </button>
+                      <button
+                        className="ghost"
+                        onClick={() => setEditingId(null)}
+                      >
+                        Vazgec
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ) : (
@@ -301,54 +324,70 @@ export default function Employees() {
                   </td>
                   <td>{r.title ?? "-"}</td>
                   <td className="hint">{r.hired_on}</td>
-                  <td className="form-row">
-                    {r.marker_id === null ? (
-                      <span className="hint">yok</span>
-                    ) : (
-                      <span className="badge">{r.marker_id}</span>
-                    )}
-                    <button className="ghost" onClick={() => void assignFromNo(r.id)}>
-                      Sicilden
-                    </button>
-                    <input
-                      placeholder="Elle"
-                      style={{ minWidth: "5rem" }}
-                      value={markerInput[r.id] ?? ""}
-                      onChange={(e) =>
-                        setMarkerInput({ ...markerInput, [r.id]: e.target.value })
-                      }
-                    />
-                    <button className="ghost" onClick={() => void assign(r.id)}>
-                      Tanimla
-                    </button>
-                  </td>
-                  <td className="form-row">
-                    <button
-                      className="ghost"
-                      onClick={() => {
-                        setEditingId(r.id);
-                        setEditForm(toForm(r));
-                      }}
-                    >
-                      Duzenle
-                    </button>
-                    <button
-                      className="ghost"
-                      disabled={r.marker_id === null}
-                      title={
-                        r.marker_id === null
-                          ? "Once ArUco kart tanimlayin"
-                          : "Karti onizle ve yazdir"
-                      }
-                      onClick={() => setPrinting(r)}
-                    >
-                      Kart
-                    </button>
-                    {r.marker_id !== null && (
-                      <button className="ghost" onClick={() => void revoke(r.id)}>
-                        Kart iptal
+                  <td>
+                    <div className="cell-actions">
+                      {r.marker_id === null ? (
+                        <span className="hint">yok</span>
+                      ) : (
+                        <span className="badge">{r.marker_id}</span>
+                      )}
+                      <button
+                        className="ghost"
+                        onClick={() => void assignFromNo(r.id)}
+                      >
+                        Sicilden
                       </button>
-                    )}
+                      <input
+                        placeholder="Elle"
+                        style={{ minWidth: "5rem" }}
+                        value={markerInput[r.id] ?? ""}
+                        onChange={(e) =>
+                          setMarkerInput({
+                            ...markerInput,
+                            [r.id]: e.target.value,
+                          })
+                        }
+                      />
+                      <button
+                        className="ghost"
+                        onClick={() => void assign(r.id)}
+                      >
+                        Tanimla
+                      </button>
+                    </div>
+                  </td>
+                  <td>
+                    <div className="cell-actions">
+                      <button
+                        className="ghost"
+                        onClick={() => {
+                          setEditingId(r.id);
+                          setEditForm(toForm(r));
+                        }}
+                      >
+                        Duzenle
+                      </button>
+                      <button
+                        className="ghost"
+                        disabled={r.marker_id === null}
+                        title={
+                          r.marker_id === null
+                            ? "Once ArUco kart tanimlayin"
+                            : "Karti onizle ve yazdir"
+                        }
+                        onClick={() => setPrinting(r)}
+                      >
+                        Kart
+                      </button>
+                      {r.marker_id !== null && (
+                        <button
+                          className="ghost"
+                          onClick={() => void revoke(r.id)}
+                        >
+                          Kart iptal
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ),
@@ -368,7 +407,8 @@ export default function Employees() {
         <div className="modal-backdrop" onClick={() => setPrinting(null)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="card-title no-print">
-              {printing.employee_no} — {printing.first_name} {printing.last_name}
+              {printing.employee_no} — {printing.first_name}{" "}
+              {printing.last_name}
             </div>
 
             <MarkerCard
