@@ -7,20 +7,25 @@ import {
   type DailySummary,
   type Employee,
 } from "../api";
+import { locale, useI18n } from "../i18n";
 
 function isoDate(d: Date) {
   return d.toISOString().slice(0, 10);
 }
 
-function formatDuration(minutes: number) {
-  return `${Math.floor(minutes / 60)} sa ${minutes % 60} dk`;
-}
-
-function formatTime(iso: string | null) {
-  return iso ? new Date(iso).toLocaleTimeString("tr-TR", { timeStyle: "short" }) : "-";
-}
-
 export default function Daily() {
+  const { t, lang } = useI18n();
+
+  const formatDuration = (minutes: number) =>
+    lang === "tr"
+      ? `${Math.floor(minutes / 60)} sa ${minutes % 60} dk`
+      : `${Math.floor(minutes / 60)}h ${minutes % 60}m`;
+
+  const formatTime = (iso: string | null) =>
+    iso
+      ? new Date(iso).toLocaleTimeString(locale(lang), { timeStyle: "short" })
+      : "-";
+
   const today = isoDate(new Date());
 
   const [from, setFrom] = useState(today);
@@ -87,12 +92,15 @@ export default function Daily() {
   async function exportExcel() {
     try {
       setError(null);
-      await api.downloadTimesheet({
-        from,
-        to,
-        companyId: companyId || undefined,
-        employeeId: employeeId || undefined,
-      });
+      await api.downloadTimesheet(
+        {
+          from,
+          to,
+          companyId: companyId || undefined,
+          employeeId: employeeId || undefined,
+        },
+        lang,
+      );
     } catch (e) {
       setError((e as Error).message);
     }
@@ -123,27 +131,27 @@ export default function Daily() {
 
   return (
     <section>
-      <h1>Puantaj</h1>
+      <h1>{t("sheet.title")}</h1>
 
       <div className="card">
-        <div className="card-title">Filtre</div>
+        <div className="card-title">{t("sheet.filter")}</div>
         <div className="form-row">
           <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
           <span className="hint">—</span>
           <input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
 
           <button className="ghost" onClick={() => quickRange(1)}>
-            Bugun
+            {t("sheet.today")}
           </button>
           <button className="ghost" onClick={() => quickRange(7)}>
-            Son 7 gun
+            {t("sheet.last7")}
           </button>
           <button className="ghost" onClick={() => quickRange(30)}>
-            Son 30 gun
+            {t("sheet.last30")}
           </button>
 
           <select value={companyId} onChange={(e) => setCompanyId(e.target.value)}>
-            <option value="">Tum firmalar</option>
+            <option value="">{t("common.allCompanies")}</option>
             {companies.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
@@ -152,7 +160,7 @@ export default function Daily() {
           </select>
 
           <select value={employeeId} onChange={(e) => setEmployeeId(e.target.value)}>
-            <option value="">Tum personel</option>
+            <option value="">{t("sheet.allEmployees")}</option>
             {employees.map((e) => (
               <option key={e.id} value={e.id}>
                 {e.employee_no} - {e.first_name} {e.last_name}
@@ -161,30 +169,32 @@ export default function Daily() {
           </select>
 
           <input
-            placeholder="Ad veya sicil ara"
+            placeholder={t("sheet.searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
 
-          <button onClick={() => void exportExcel()}>Excel'e aktar</button>
+          <button onClick={() => void exportExcel()}>
+            {t("sheet.export")}
+          </button>
         </div>
       </div>
 
       <div className="stat-row">
         <div className="stat">
-          <span className="stat-label">Personel</span>
+          <span className="stat-label">{t("sheet.people")}</span>
           <strong>{people}</strong>
         </div>
         <div className="stat">
-          <span className="stat-label">Kayit</span>
+          <span className="stat-label">{t("common.records")}</span>
           <strong>{visible.length}</strong>
         </div>
         <div className="stat">
-          <span className="stat-label">Toplam calisma</span>
+          <span className="stat-label">{t("sheet.totalWork")}</span>
           <strong>{formatDuration(totalMinutes)}</strong>
         </div>
         <div className={unmatched > 0 ? "stat warn" : "stat"}>
-          <span className="stat-label">Eslesmeyen hareket</span>
+          <span className="stat-label">{t("sheet.unmatched")}</span>
           <strong>{unmatched}</strong>
         </div>
       </div>
@@ -195,14 +205,14 @@ export default function Daily() {
         <table>
           <thead>
             <tr>
-              <th>Tarih</th>
-              <th>Sicil</th>
-              <th>Personel</th>
-              <th>Firma</th>
-              <th>Unvan</th>
-              <th>Ilk giris</th>
-              <th>Son cikis</th>
-              <th>Calisilan</th>
+              <th>{t("common.date")}</th>
+              <th>{t("emp.no")}</th>
+              <th>{t("sheet.people")}</th>
+              <th>{t("common.company")}</th>
+              <th>{t("common.title")}</th>
+              <th>{t("sheet.firstIn")}</th>
+              <th>{t("sheet.lastOut")}</th>
+              <th>{t("sheet.worked")}</th>
               <th></th>
             </tr>
           </thead>
@@ -210,7 +220,7 @@ export default function Daily() {
             {visible.map((r) => (
               <tr key={`${r.employee_id}-${r.work_date}`}>
                 <td className="hint">
-                  {new Date(r.work_date).toLocaleDateString("tr-TR")}
+                  {new Date(r.work_date).toLocaleDateString(locale(lang))}
                 </td>
                 <td>
                   <strong>{r.employee_no}</strong>
@@ -231,15 +241,15 @@ export default function Daily() {
                   {r.unmatched > 0 && (
                     <span
                       className="badge warn"
-                      title="Cikisi eslesmeyen giris var; sure eksik hesaplandi"
+                      title={t("sheet.incompleteHint")}
                     >
-                      eksik
+                      {t("sheet.incomplete")}
                     </span>
                   )}
                 </td>
                 <td>
                   <button className="ghost" onClick={() => void openActivity(r)}>
-                    Aktivite
+                    {t("sheet.activity")}
                   </button>
                 </td>
               </tr>
@@ -247,7 +257,7 @@ export default function Daily() {
             {visible.length === 0 && !busy && (
               <tr>
                 <td colSpan={9} className="hint">
-                  Bu aralikta hareket yok.
+                  {t("sheet.empty")}
                 </td>
               </tr>
             )}
@@ -276,6 +286,7 @@ function ActivityModal({
   events: AttendanceEvent[];
   onClose: () => void;
 }) {
+  const { t, lang } = useI18n();
   const [photos, setPhotos] = useState<Record<number, string>>({});
 
   useEffect(() => {
@@ -308,9 +319,11 @@ function ActivityModal({
       <div className="modal wide" onClick={(e) => e.stopPropagation()}>
         <div className="modal-head">
           <strong>{name}</strong>
-          <span className="hint">{events.length} hareket</span>
+          <span className="hint">
+            {events.length} {t("sheet.events")}
+          </span>
           <button className="ghost" onClick={onClose}>
-            Kapat
+            {t("common.close")}
           </button>
         </div>
 
@@ -321,28 +334,28 @@ function ActivityModal({
                 <img src={photos[e.id]} alt="" className="activity-photo" />
               ) : (
                 <div className="activity-photo empty">
-                  {e.has_photo ? "..." : "foto yok"}
+                  {e.has_photo ? "..." : t("sheet.noPhoto")}
                 </div>
               )}
               <div className="activity-body">
                 <span className="direction">
-                  {e.direction === "in" ? "GIRIS" : "CIKIS"}
+                  {e.direction === "in" ? t("common.in") : t("common.out")}
                 </span>
                 <strong>
-                  {new Date(e.occurred_at).toLocaleString("tr-TR", {
+                  {new Date(e.occurred_at).toLocaleString(locale(lang), {
                     dateStyle: "short",
                     timeStyle: "medium",
                   })}
                 </strong>
                 <span className="hint">
-                  {e.checkpoint_code ?? "nokta yok"}
+                  {e.checkpoint_code ?? t("sheet.noCheckpoint")}
                   {e.marker_id !== null && ` · ArUco ${e.marker_id}`}
-                  {e.is_manual && " · elle"}
+                  {e.is_manual && ` · ${t("sheet.manual")}`}
                 </span>
               </div>
             </div>
           ))}
-          {events.length === 0 && <p className="hint">Hareket yok.</p>}
+          {events.length === 0 && <p className="hint">{t("sheet.empty")}</p>}
         </div>
       </div>
     </div>

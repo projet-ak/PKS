@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 import { useAuth } from "../auth";
+import { LanguageSwitch, useI18n } from "../i18n";
 import { CONCEPT, DEVELOPER, LOGOS } from "../logos";
 
 /// Sol paneldeki yuzen sekiller. Konum ve sure sabit tutuldu; rastgele
@@ -12,15 +13,17 @@ const HEXES = [
   { size: 40, top: "40%", left: "5%", duration: "8s", delay: "-2s" },
 ];
 
+/// Ozellik kutulari; metinleri sozlukten gelir.
 const FEATURES = [
-  { icon: "◉", title: "ArUco kart", text: "Kamerayla temassiz gecis" },
-  { icon: "▤", title: "Puantaj", text: "Gunluk giris-cikis ve sure" },
-  { icon: "⚿", title: "Cok noktali", text: "Giris ve cikis kiosklari" },
-  { icon: "☰", title: "Izin", text: "Talep ve onay akisi", soon: true },
-];
+  { icon: "◉", key: "f1" },
+  { icon: "▤", key: "f2" },
+  { icon: "⚿", key: "f3" },
+  { icon: "☰", key: "f4", soon: true },
+] as const;
 
 export default function Login() {
   const { login } = useAuth();
+  const { t } = useI18n();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -85,24 +88,23 @@ export default function Login() {
           </div>
 
           <div className="brand-tagline">
-            Personel Takip <span>Sistemi</span>
+            {t("login.taglineA")} <span>{t("login.taglineB")}</span>
           </div>
-          <p className="brand-sub">
-            Santiyeden ofise tek platform — ArUco kartla temassiz gecis,
-            gunluk puantaj, vardiya ve izin yonetimi.
-          </p>
+          <p className="brand-sub">{t("login.brandSub")}</p>
 
           <div className="feature-pills">
             {FEATURES.map((f) => (
               <div
-                key={f.title}
-                className={f.soon ? "feature-pill soon" : "feature-pill"}
+                key={f.key}
+                className={"soon" in f ? "feature-pill soon" : "feature-pill"}
               >
                 <span className="feature-pill-icon">{f.icon}</span>
                 <span className="feature-pill-text">
-                  <strong>{f.title}</strong>
-                  {f.text}
-                  {f.soon && <span className="pill-soon-badge">Yakinda</span>}
+                  <strong>{t(`login.${f.key}.title` as "login.f1.title")}</strong>
+                  {t(`login.${f.key}.text` as "login.f1.text")}
+                  {"soon" in f && (
+                    <span className="pill-soon-badge">{t("login.soon")}</span>
+                  )}
                 </span>
               </div>
             ))}
@@ -118,13 +120,16 @@ export default function Login() {
             </svg>
           </span>
           <span className="login-right-logo-text">
-            <strong>PTS</strong>
-            <span>Personel Takip Sistemi</span>
+            <strong>{t("app.name")}</strong>
+            <span>{t("app.title")}</span>
           </span>
+          <div style={{ marginLeft: "auto" }}>
+            <LanguageSwitch />
+          </div>
         </div>
 
-        <h1 className="login-title">Giris yap</h1>
-        <p className="login-sub">Panel hesabinizla oturum acin.</p>
+        <h1 className="login-title">{t("login.signIn")}</h1>
+        <p className="login-sub">{t("login.subtitle")}</p>
 
         {error && (
           <div className="login-alert error" key={error}>
@@ -138,7 +143,7 @@ export default function Login() {
         <form onSubmit={submit} className="login-form">
           <div>
             <label className="lbl" htmlFor="username">
-              Kullanici adi
+              {t("login.username")}
             </label>
             <div className="input-wrap">
               <span className="input-wrap-icon">
@@ -151,7 +156,7 @@ export default function Login() {
                 autoComplete="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="kullanici"
+                placeholder={t("login.username")}
                 required
                 autoFocus
               />
@@ -160,7 +165,7 @@ export default function Login() {
 
           <div>
             <label className="lbl" htmlFor="password">
-              Parola
+              {t("login.password")}
             </label>
             <div className="input-wrap">
               <span className="input-wrap-icon">
@@ -181,9 +186,9 @@ export default function Login() {
                 type="button"
                 className="input-wrap-btn"
                 onClick={() => setShowPassword((v) => !v)}
-                aria-label={showPassword ? "Parolayi gizle" : "Parolayi goster"}
+                aria-label={showPassword ? t("common.hide") : t("common.show")}
               >
-                {showPassword ? "gizle" : "goster"}
+                {showPassword ? t("common.hide") : t("common.show")}
               </button>
             </div>
           </div>
@@ -194,7 +199,7 @@ export default function Login() {
             disabled={busy}
           >
             <span className="btn-text">
-              Giris <span aria-hidden="true">→</span>
+              {t("login.submit")} <span aria-hidden="true">→</span>
             </span>
           </button>
         </form>
@@ -202,9 +207,9 @@ export default function Login() {
         <p className="login-footer">
           ERN Holding &middot; ERN Taahhüt
           <br />
-          Concept: {CONCEPT}
+          {t("app.concept")}: {CONCEPT}
           <br />
-          Developed by: {DEVELOPER}
+          {t("app.developedBy")}: {DEVELOPER}
         </p>
       </div>
     </div>

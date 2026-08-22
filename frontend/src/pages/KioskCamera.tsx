@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { api, type ScanResponse } from "../api";
+import { locale, useI18n } from "../i18n";
 
 // AR global olarak index.html'deki /vendor/aruco.js tarafindan tanimlanir.
 
@@ -17,11 +18,11 @@ const PHOTO_QUALITY = 0.6;
 
 export type Mode = "auto" | "in" | "out";
 
-const MODE_LABELS: Record<Mode, string> = {
-  auto: "Otomatik",
-  in: "Sadece GIRIS",
-  out: "Sadece CIKIS",
-};
+const MODE_KEYS = {
+  auto: "kiosk.mode.auto",
+  in: "kiosk.mode.in",
+  out: "kiosk.mode.out",
+} as const;
 
 interface Props {
   /// Ayarlar bu ada gore saklanir; her panel kendi kamerasini hatirlar.
@@ -40,6 +41,7 @@ export default function KioskCamera({
   defaultMode,
   checkpointKey,
 }: Props) {
+  const { t, lang } = useI18n();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const lastSentRef = useRef<{ markerId: number; at: number } | null>(null);
@@ -92,7 +94,7 @@ export default function KioskCamera({
       // da localhost. Aksi halde navigator.mediaDevices hic tanimlanmaz.
       if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
         setError(
-          "Kamera yalnizca HTTPS uzerinden kullanilabilir. Adres su an " +
+          t("kiosk.httpsOnly") +
             window.location.protocol +
             "//" +
             window.location.host,
@@ -124,7 +126,7 @@ export default function KioskCamera({
         frameHandle = requestAnimationFrame(tick);
       } catch (e) {
         setCameraReady(false);
-        setError("Kamera acilamadi: " + (e as Error).message);
+        setError(t("kiosk.cameraFailed") + (e as Error).message);
       }
     }
 
@@ -203,18 +205,18 @@ export default function KioskCamera({
 
       <div className="form-row">
         <select value={cameraId} onChange={(e) => chooseCamera(e.target.value)}>
-          <option value="">Kamera: varsayilan</option>
+          <option value="">{t("kiosk.defaultCamera")}</option>
           {cameras.map((c, i) => (
             <option key={c.deviceId} value={c.deviceId}>
-              {c.label || "Kamera " + (i + 1)}
+              {c.label || `${t("kiosk.camera")} ${i + 1}`}
             </option>
           ))}
         </select>
 
         <select value={mode} onChange={(e) => chooseMode(e.target.value as Mode)}>
-          {(Object.keys(MODE_LABELS) as Mode[]).map((m) => (
+          {(Object.keys(MODE_KEYS) as Mode[]).map((m) => (
             <option key={m} value={m}>
-              {MODE_LABELS[m]}
+              {t(MODE_KEYS[m])}
             </option>
           ))}
         </select>
@@ -222,7 +224,7 @@ export default function KioskCamera({
 
       <video ref={videoRef} playsInline muted className="hidden-video" />
       <canvas ref={canvasRef} className="kiosk-canvas" />
-      {!cameraReady && !error && <p className="hint">Kamera baslatiliyor...</p>}
+      {!cameraReady && !error && <p className="hint">{t("kiosk.starting")}</p>}
 
       {result && (
         <div className={"scan-result " + result.direction}>
@@ -230,10 +232,10 @@ export default function KioskCamera({
             <strong>{result.full_name}</strong>
             <span className="sicil">{result.employee_no}</span>
             <span className="direction">
-              {result.direction === "in" ? "GIRIS" : "CIKIS"}
+              {result.direction === "in" ? t("common.in") : t("common.out")}
             </span>
             <span className="time">
-              {new Date(result.occurred_at).toLocaleTimeString("tr-TR")}
+              {new Date(result.occurred_at).toLocaleTimeString(locale(lang))}
             </span>
           </div>
           <div className="scan-meta">
@@ -243,7 +245,7 @@ export default function KioskCamera({
             {result.title && <span className="scan-title">{result.title}</span>}
           </div>
           {result.duplicate_ignored && (
-            <span className="hint">Zaten kaydedilmisti, tekrarlanmadi.</span>
+            <span className="hint">{t("kiosk.duplicate")}</span>
           )}
         </div>
       )}

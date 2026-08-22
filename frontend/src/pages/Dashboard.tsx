@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 
 import { api, type Company, type Dashboard as Data } from "../api";
-
-function hours(minutes: number) {
-  return `${Math.floor(minutes / 60)} sa ${minutes % 60} dk`;
-}
+import { locale, useI18n } from "../i18n";
 
 export default function Dashboard() {
+  const { t, lang } = useI18n();
+  const hours = (minutes: number) =>
+    lang === "tr"
+      ? `${Math.floor(minutes / 60)} sa ${minutes % 60} dk`
+      : `${Math.floor(minutes / 60)}h ${minutes % 60}m`;
+
   const [companyId, setCompanyId] = useState("");
   const [companies, setCompanies] = useState<Company[]>([]);
   const [data, setData] = useState<Data | null>(null);
@@ -27,7 +30,7 @@ export default function Dashboard() {
   }, [companyId]);
 
   if (error) return <p className="error-text">{error}</p>;
-  if (!data) return <p className="hint">Yukleniyor...</p>;
+  if (!data) return <p className="hint">{t("app.loading")}</p>;
 
   // Sutunlari en yuksek gune gore olcekliyoruz; sabit bir tavan kullanmak
   // az hareketli gunlerde grafigi bombos gosterirdi.
@@ -36,9 +39,9 @@ export default function Dashboard() {
   return (
     <section>
       <div className="page-head">
-        <h1>Genel Bakis</h1>
+        <h1>{t("dash.title")}</h1>
         <select value={companyId} onChange={(e) => setCompanyId(e.target.value)}>
-          <option value="">Tum firmalar</option>
+          <option value="">{t("common.allCompanies")}</option>
           {companies.map((c) => (
             <option key={c.id} value={c.id}>
               {c.name}
@@ -49,31 +52,33 @@ export default function Dashboard() {
 
       <div className="stat-row">
         <div className="stat">
-          <span className="stat-label">Aktif personel</span>
+          <span className="stat-label">{t("dash.employees")}</span>
           <strong>{data.employee_count}</strong>
-          <span className="hint">{data.with_card} kartli</span>
+          <span className="hint">
+            {data.with_card} {t("dash.withCard")}
+          </span>
         </div>
         <div className="stat ok">
-          <span className="stat-label">Su an iceride</span>
+          <span className="stat-label">{t("dash.inside")}</span>
           <strong>{data.inside_now}</strong>
         </div>
         <div className="stat">
-          <span className="stat-label">Bugun gelen</span>
+          <span className="stat-label">{t("dash.presentToday")}</span>
           <strong>{data.present_today}</strong>
         </div>
         <div className="stat">
-          <span className="stat-label">Bugun calisilan</span>
+          <span className="stat-label">{t("dash.workedToday")}</span>
           <strong>{hours(data.today_minutes)}</strong>
         </div>
         <div className="stat">
-          <span className="stat-label">Aktif nokta</span>
+          <span className="stat-label">{t("dash.checkpoints")}</span>
           <strong>{data.checkpoints_active}</strong>
         </div>
       </div>
 
       <div className="grid-2">
         <div className="card">
-          <div className="card-title">Son 7 gun — calisma saati</div>
+          <div className="card-title">{t("dash.chart")}</div>
           <div className="chart">
             {data.last_days.map((d) => (
               <div className="chart-col" key={d.work_date}>
@@ -81,10 +86,10 @@ export default function Dashboard() {
                 <div
                   className="chart-bar"
                   style={{ height: `${Math.round((d.hours / peak) * 100)}%` }}
-                  title={`${d.people} kisi · ${d.hours.toFixed(1)} saat`}
+                  title={`${d.people} · ${d.hours.toFixed(1)}`}
                 />
                 <span className="chart-label">
-                  {new Date(d.work_date).toLocaleDateString("tr-TR", {
+                  {new Date(d.work_date).toLocaleDateString(locale(lang), {
                     day: "2-digit",
                     month: "2-digit",
                   })}
@@ -95,7 +100,7 @@ export default function Dashboard() {
         </div>
 
         <div className="card">
-          <div className="card-title">Son hareketler</div>
+          <div className="card-title">{t("dash.recent")}</div>
           <table>
             <tbody>
               {data.recent.map((r) => (
@@ -103,11 +108,11 @@ export default function Dashboard() {
                   <td>{r.full_name}</td>
                   <td>
                     <span className={`direction ${r.direction}`}>
-                      {r.direction === "in" ? "GIRIS" : "CIKIS"}
+                      {r.direction === "in" ? t("common.in") : t("common.out")}
                     </span>
                   </td>
                   <td className="hint">
-                    {new Date(r.occurred_at).toLocaleString("tr-TR", {
+                    {new Date(r.occurred_at).toLocaleString(locale(lang), {
                       dateStyle: "short",
                       timeStyle: "short",
                     })}
@@ -116,7 +121,7 @@ export default function Dashboard() {
               ))}
               {data.recent.length === 0 && (
                 <tr>
-                  <td className="hint">Henuz hareket yok.</td>
+                  <td className="hint">{t("dash.noEvents")}</td>
                 </tr>
               )}
             </tbody>

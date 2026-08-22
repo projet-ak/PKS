@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import { api, type Checkpoint } from "../api";
 import { useAuth } from "../auth";
+import { useI18n } from "../i18n";
 import KioskCamera from "./KioskCamera";
 
 /// Kiosk cihazi kullanici oturumu acmaz; kendisini bu anahtarla tanitir.
@@ -16,6 +17,7 @@ const STORAGE_DUAL = "pts.kiosk.dual";
 
 export default function Kiosk() {
   const { user } = useAuth();
+  const { t } = useI18n();
 
   const [checkpointKey, setCheckpointKey] = useState<string>(
     () => localStorage.getItem(STORAGE_KEY) ?? "",
@@ -85,17 +87,16 @@ export default function Kiosk() {
   if (!checkpointKey) {
     return (
       <section>
-        <h1>Kiosk Kurulumu</h1>
+        <h1>{t("kiosk.setup")}</h1>
         <div className="card" style={{ maxWidth: "38rem" }}>
-          <div className="card-title">Cihaz anahtari</div>
+          <div className="card-title">{t("kiosk.deviceKey")}</div>
           <p className="hint">
-            Bu cihazi bir gecis noktasina baglayin. Anahtar dogrulanmadan
-            kaydedilmez, boylece yanlis yapistirma aninda anlasilir.
+            {t("kiosk.setupInfo")}
           </p>
 
           {points.length > 0 && (
             <div style={{ marginTop: "1rem" }}>
-              <p className="hint">Panelde tanimli noktalar:</p>
+              <p className="hint">{t("kiosk.definedPoints")}</p>
               <div className="form-row">
                 {points.map((p) => (
                   <button
@@ -115,14 +116,14 @@ export default function Kiosk() {
             <input
               value={keyDraft}
               onChange={(e) => setKeyDraft(e.target.value)}
-              placeholder="Cihaz anahtarini yapistirin"
+              placeholder={t("kiosk.pasteKey")}
               style={{ minWidth: "20rem" }}
             />
             <button
               onClick={() => void verifyAndStore(keyDraft)}
               disabled={!keyDraft.trim() || checking}
             >
-              {checking ? "Dogrulaniyor..." : "Dogrula ve kaydet"}
+              {checking ? t("kiosk.verifying") : t("kiosk.verify")}
             </button>
           </div>
 
@@ -130,8 +131,7 @@ export default function Kiosk() {
 
           {points.length === 0 && user?.role === "admin" && (
             <p className="hint" style={{ marginTop: "0.8rem" }}>
-              Henuz gecis noktasi tanimli degil. "Gecis Noktalari" sayfasindan
-              olusturun.
+              {t("kiosk.noPoints")}
             </p>
           )}
         </div>
@@ -141,10 +141,10 @@ export default function Kiosk() {
 
   return (
     <section className="kiosk">
-      <h1>Gecis Kiosku</h1>
+      <h1>{t("kiosk.title")}</h1>
 
       <div className="card form-row">
-        <span className="badge">Nokta: {checkpointCode || "bagli"}</span>
+        <span className="badge">{t("kiosk.point")}: {checkpointCode}</span>
         <label className="hint">
           <input
             type="checkbox"
@@ -152,25 +152,25 @@ export default function Kiosk() {
             onChange={(e) => toggleDual(e.target.checked)}
             style={{ minWidth: "auto" }}
           />{" "}
-          Iki kamerayi ayni anda calistir
+          {t("kiosk.dual")}
         </label>
-        <span className="hint">Her panel kendi kamerasini ve yonunu hatirlar.</span>
+        <span className="hint">{t("kiosk.dualHint")}</span>
         <button className="ghost" onClick={reset}>
-          Cihaz anahtarini degistir
+          {t("kiosk.changeKey")}
         </button>
       </div>
 
       <div className={dual ? "kiosk-panes dual" : "kiosk-panes"}>
         <KioskCamera
           paneId={dual ? "in" : "single"}
-          title={dual ? "Giris" : "Kiosk"}
+          title={dual ? t("kiosk.entry") : t("kiosk.title")}
           defaultMode={dual ? "in" : "auto"}
           checkpointKey={checkpointKey}
         />
         {dual && (
           <KioskCamera
             paneId="out"
-            title="Cikis"
+            title={t("kiosk.exit")}
             defaultMode="out"
             checkpointKey={checkpointKey}
           />

@@ -10,48 +10,62 @@ import {
 } from "react-router-dom";
 
 import { AuthProvider, useAuth } from "./auth";
+import { I18nProvider, LanguageSwitch, useI18n } from "./i18n";
 import { CONCEPT, DEVELOPER, LOGOS } from "./logos";
 import Cards from "./pages/Cards";
-import Companies from "./pages/Companies";
-import Dashboard from "./pages/Dashboard";
 import Checkpoints from "./pages/Checkpoints";
+import Companies from "./pages/Companies";
 import Daily from "./pages/Daily";
+import Dashboard from "./pages/Dashboard";
 import Employees from "./pages/Employees";
 import Kiosk from "./pages/Kiosk";
 import Login from "./pages/Login";
 import Users from "./pages/Users";
 import "./styles.css";
 
+type NavKey =
+  | "nav.dashboard"
+  | "nav.timesheet"
+  | "nav.employees"
+  | "nav.kiosk"
+  | "nav.cards"
+  | "nav.checkpoints"
+  | "nav.companies"
+  | "nav.users";
+
 interface NavItem {
   to: string;
-  label: string;
+  labelKey: NavKey;
   icon: string;
   /// Yalnizca yonetici gorsun.
   adminOnly?: boolean;
 }
 
-const NAV: { section: string; items: NavItem[] }[] = [
+const NAV: {
+  sectionKey: "nav.tracking" | "nav.cardKiosk" | "nav.management";
+  items: NavItem[];
+}[] = [
   {
-    section: "Takip",
+    sectionKey: "nav.tracking",
     items: [
-      { to: "/panel", label: "Genel Bakis", icon: "◫" },
-      { to: "/puantaj", label: "Puantaj", icon: "▤" },
-      { to: "/personel", label: "Personel", icon: "☰" },
+      { to: "/panel", labelKey: "nav.dashboard", icon: "◫" },
+      { to: "/puantaj", labelKey: "nav.timesheet", icon: "▤" },
+      { to: "/personel", labelKey: "nav.employees", icon: "☰" },
     ],
   },
   {
-    section: "Kart & Kiosk",
+    sectionKey: "nav.cardKiosk",
     items: [
-      { to: "/kiosk", label: "Gecis Kiosku", icon: "◉" },
-      { to: "/kart", label: "Kart Uret", icon: "▣" },
-      { to: "/noktalar", label: "Gecis Noktalari", icon: "⚿", adminOnly: true },
+      { to: "/kiosk", labelKey: "nav.kiosk", icon: "◉" },
+      { to: "/kart", labelKey: "nav.cards", icon: "▣" },
+      { to: "/noktalar", labelKey: "nav.checkpoints", icon: "⚿", adminOnly: true },
     ],
   },
   {
-    section: "Yonetim",
+    sectionKey: "nav.management",
     items: [
-      { to: "/firmalar", label: "Firmalar", icon: "⌂", adminOnly: true },
-      { to: "/kullanicilar", label: "Kullanicilar", icon: "☺", adminOnly: true },
+      { to: "/firmalar", labelKey: "nav.companies", icon: "⌂", adminOnly: true },
+      { to: "/kullanicilar", labelKey: "nav.users", icon: "☺", adminOnly: true },
     ],
   },
 ];
@@ -61,11 +75,13 @@ const PUBLIC_PATHS = ["/kiosk"];
 
 function Shell({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
+  const { t } = useI18n();
   const location = useLocation();
 
-  const title =
-    NAV.flatMap((g) => g.items).find((i) => i.to === location.pathname)?.label ??
-    "PTS";
+  const current = NAV.flatMap((g) => g.items).find(
+    (i) => i.to === location.pathname,
+  );
+  const title = current ? t(current.labelKey) : t("app.name");
 
   const initials = (user?.full_name ?? user?.username ?? "?")
     .split(" ")
@@ -80,8 +96,8 @@ function Shell({ children }: { children: React.ReactNode }) {
         <div className="sidebar-brand">
           <img src={LOGOS.holdingWhite} alt="ERN" />
           <div className="sidebar-brand-label">
-            <strong>PTS</strong>
-            <span>Personel Takip</span>
+            <strong>{t("app.name")}</strong>
+            <span>{t("app.subtitle")}</span>
           </div>
         </div>
 
@@ -92,8 +108,8 @@ function Shell({ children }: { children: React.ReactNode }) {
             );
             if (items.length === 0) return null;
             return (
-              <div key={group.section}>
-                <div className="nav-section">{group.section}</div>
+              <div key={group.sectionKey}>
+                <div className="nav-section">{t(group.sectionKey)}</div>
                 {items.map((item) => (
                   <NavLink
                     key={item.to}
@@ -103,7 +119,7 @@ function Shell({ children }: { children: React.ReactNode }) {
                     }
                   >
                     <span className="icon">{item.icon}</span>
-                    <span>{item.label}</span>
+                    <span>{t(item.labelKey)}</span>
                   </NavLink>
                 ))}
               </div>
@@ -119,7 +135,7 @@ function Shell({ children }: { children: React.ReactNode }) {
               <span>{user.role}</span>
             </div>
             <button className="logout" onClick={logout}>
-              Cikis
+              {t("nav.logout")}
             </button>
           </div>
         )}
@@ -129,6 +145,7 @@ function Shell({ children }: { children: React.ReactNode }) {
         <header className="topbar">
           <span className="topbar-title">{title}</span>
           <div className="topbar-right">
+            <LanguageSwitch />
             <div className="company-logos">
               <img src={LOGOS.holdingColor} alt="ERN Holding" />
               <img src={LOGOS.taahhutColor} alt="ERN Taahhüt" />
@@ -137,7 +154,8 @@ function Shell({ children }: { children: React.ReactNode }) {
         </header>
         <main className="page">{children}</main>
         <footer className="app-foot">
-          PTS &middot; Concept: {CONCEPT} &middot; Developed by: {DEVELOPER}
+          {t("app.name")} &middot; {t("app.concept")}: {CONCEPT} &middot;{" "}
+          {t("app.developedBy")}: {DEVELOPER}
         </footer>
       </div>
     </div>
@@ -146,11 +164,16 @@ function Shell({ children }: { children: React.ReactNode }) {
 
 function App() {
   const { user, loading } = useAuth();
+  const { t } = useI18n();
   const location = useLocation();
   const isPublic = PUBLIC_PATHS.includes(location.pathname);
 
   if (loading) {
-    return <p className="hint" style={{ padding: "2rem" }}>Yukleniyor...</p>;
+    return (
+      <p className="hint" style={{ padding: "2rem" }}>
+        {t("app.loading")}
+      </p>
+    );
   }
 
   if (!user && !isPublic) {
@@ -162,6 +185,9 @@ function App() {
   if (!user && isPublic) {
     return (
       <main className="page">
+        <div className="kiosk-topbar">
+          <LanguageSwitch />
+        </div>
         <Kiosk />
       </main>
     );
@@ -187,9 +213,11 @@ function App() {
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
+      <I18nProvider>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </I18nProvider>
     </BrowserRouter>
   </React.StrictMode>,
 );

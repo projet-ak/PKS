@@ -2,21 +2,20 @@ import { useEffect, useState } from "react";
 
 import { api, type AppUser } from "../api";
 import { useAuth } from "../auth";
+import { locale, useI18n } from "../i18n";
 
-/// Backend'deki ROLES ile ayni olmali.
-const ROLES: { value: string; label: string; note: string }[] = [
-  { value: "admin", label: "Yonetici", note: "Her seyi yapar, kullanici tanimlar" },
-  { value: "hr", label: "Insan Kaynaklari", note: "Personel ve kart islemleri" },
-  { value: "manager", label: "Sef", note: "Personel ve kart islemleri" },
-  { value: "viewer", label: "Izleyici", note: "Yalnizca goruntuler, degistiremez" },
-];
-
-function roleLabel(role: string) {
-  return ROLES.find((r) => r.value === role)?.label ?? role;
-}
+/// Backend'deki ROLES ile ayni olmali; etiketler sozlukten gelir.
+const ROLES = ["admin", "hr", "manager", "viewer"] as const;
 
 export default function Users() {
   const { user: me } = useAuth();
+  const { t, lang } = useI18n();
+
+  const roleLabel = (role: string) =>
+    ROLES.includes(role as (typeof ROLES)[number])
+      ? t(`usr.role.${role}` as "usr.role.admin")
+      : role;
+  const roleNote = (role: string) => t(`usr.note.${role}` as "usr.note.admin");
   const [rows, setRows] = useState<AppUser[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -95,47 +94,45 @@ export default function Users() {
 
   return (
     <section>
-      <h1>Kullanicilar</h1>
+      <h1>{t("usr.title")}</h1>
       <p className="hint">
-        Yetkiler role bagli: <strong>Izleyici</strong> yalnizca goruntuler,
-        veri degistiremez. <strong>Yonetici</strong> ayrica kullanici, firma ve
-        gecis noktasi tanimlar.
+{t("usr.info")}
       </p>
 
       <form className="card" onSubmit={submit}>
-        <div className="card-title">Yeni kullanici</div>
+        <div className="card-title">{t("usr.new")}</div>
         <div className="form-row">
           <input
-            placeholder="Kullanici adi"
+            placeholder={t("login.username")}
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
           />
           <input
-            placeholder="Ad Soyad"
+            placeholder={t("emp.fullName")}
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             style={{ minWidth: "12rem" }}
           />
           <select value={role} onChange={(e) => setRole(e.target.value)}>
             {ROLES.map((r) => (
-              <option key={r.value} value={r.value}>
-                {r.label}
+              <option key={r} value={r}>
+                {roleLabel(r)}
               </option>
             ))}
           </select>
           <input
             type="password"
-            placeholder="Parola (en az 8)"
+            placeholder={t("usr.passwordPlaceholder")}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             minLength={8}
           />
-          <button type="submit">Ekle</button>
+          <button type="submit">{t("common.add")}</button>
         </div>
         <p className="hint" style={{ marginTop: "0.5rem" }}>
-          {ROLES.find((r) => r.value === role)?.note}
+          {roleNote(role)}
         </p>
       </form>
 
@@ -145,12 +142,12 @@ export default function Users() {
         <table>
           <thead>
             <tr>
-              <th>Kullanici</th>
-              <th>Ad Soyad</th>
-              <th>Rol</th>
-              <th>Durum</th>
-              <th>Son giris</th>
-              <th>Islem</th>
+              <th>{t("usr.username")}</th>
+              <th>{t("emp.fullName")}</th>
+              <th>{t("usr.role")}</th>
+              <th>{t("common.status")}</th>
+              <th>{t("usr.lastLogin")}</th>
+              <th>{t("common.actions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -174,8 +171,8 @@ export default function Users() {
                       onChange={(e) => setEditing({ ...editing, role: e.target.value })}
                     >
                       {ROLES.map((o) => (
-                        <option key={o.value} value={o.value}>
-                          {o.label}
+                        <option key={o} value={o}>
+                          {roleLabel(o)}
                         </option>
                       ))}
                     </select>
@@ -190,13 +187,13 @@ export default function Users() {
                         }
                         style={{ minWidth: "auto" }}
                       />{" "}
-                      aktif
+                      {t("common.active")}
                     </label>
                   </td>
                   <td>
                     <input
                       type="password"
-                      placeholder="Yeni parola (bos: degisme)"
+                      placeholder={t("usr.newPassword")}
                       value={editing.password}
                       onChange={(e) =>
                         setEditing({ ...editing, password: e.target.value })
@@ -206,9 +203,9 @@ export default function Users() {
                   </td>
                   <td>
                     <div className="cell-actions">
-                      <button onClick={() => void save()}>Kaydet</button>
+                      <button onClick={() => void save()}>{t("common.save")}</button>
                       <button className="ghost" onClick={() => setEditing(null)}>
-                        Vazgec
+                        {t("common.cancel")}
                       </button>
                     </div>
                   </td>
@@ -217,7 +214,7 @@ export default function Users() {
                 <tr key={r.id}>
                   <td>
                     <strong>{r.username}</strong>
-                    {me?.id === r.id && <span className="badge">siz</span>}
+                    {me?.id === r.id && <span className="badge">{t("usr.you")}</span>}
                   </td>
                   <td>{r.full_name ?? "-"}</td>
                   <td>
@@ -225,13 +222,13 @@ export default function Users() {
                   </td>
                   <td>
                     <span className={r.is_active ? "badge ok" : "badge muted"}>
-                      {r.is_active ? "aktif" : "pasif"}
+                      {r.is_active ? t("common.active") : t("common.passive")}
                     </span>
                   </td>
                   <td className="hint">
                     {r.last_login
-                      ? new Date(r.last_login).toLocaleString("tr-TR")
-                      : "hic"}
+                      ? new Date(r.last_login).toLocaleString(locale(lang))
+                      : t("common.never")}
                   </td>
                   <td>
                     <div className="cell-actions">
@@ -247,19 +244,19 @@ export default function Users() {
                           })
                         }
                       >
-                        Duzenle
+                        {t("common.edit")}
                       </button>
                       <button
                         className="ghost"
                         disabled={me?.id === r.id || !r.is_active}
                         title={
                           me?.id === r.id
-                            ? "Kendi hesabinizi pasife alamazsiniz"
-                            : "Hesabi pasife cek"
+                            ? t("usr.cannotSelf")
+                            : t("common.deactivate")
                         }
                         onClick={() => void remove(r.id)}
                       >
-                        Pasife al
+                        {t("common.deactivate")}
                       </button>
                     </div>
                   </td>

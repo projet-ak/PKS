@@ -465,6 +465,45 @@ td .cell-actions select {
   color: var(--text-soft);
 }
 
+/* Dil secici: iki kucuk dugme, secili olan marka rengiyle dolu. */
+.lang-switch {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.lang-switch button {
+  background: transparent;
+  color: var(--text-muted);
+  border: 0;
+  border-radius: 0;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  box-shadow: none;
+}
+
+.lang-switch button:hover:not(.active) {
+  background: var(--tint);
+  color: var(--ern);
+  filter: none;
+  box-shadow: none;
+}
+
+.lang-switch button.active {
+  background: var(--ern);
+  color: #fff;
+}
+
+/* Oturumsuz kioskta ust barimiz yok; dil secici tek basina durur. */
+.kiosk-topbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.8rem;
+}
+
 /* ==================================================== Panel/stat === */
 
 .page-head {

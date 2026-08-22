@@ -29,9 +29,89 @@ const LOGO_TAAHHUT: &[u8] = include_bytes!("../../assets/ern-taahhut.png");
 /// hesapliyoruz ki logo degistiginde cikti bozulmasin.
 const LOGO_HEIGHT_PX: f64 = 34.0;
 
-/// Sistemin fikir sahibi ve gelistiricisi; cikti kurum disina da gidiyor.
-const CONCEPT_BY: &str = "Concept: Omer Faruk Kaya";
-const DEVELOPED_BY: &str = "Developed by: Tayyar Akbulut";
+/// Sistemin fikir sahibi ve gelistiricisi.
+const CONCEPT_NAME: &str = "Ömer Faruk Kaya";
+const DEVELOPER_NAME: &str = "Tayyar Akbulut";
+
+/// Rapor metinleri. Panel iki dilli oldugu icin cikti da oyle olmali;
+/// yabanci bir muhataba Turkce baslikli tablo gondermek zorunda kalmayalim.
+struct Labels {
+    title: &'static str,
+    period: &'static str,
+    company: &'static str,
+    all: &'static str,
+    generated: &'static str,
+    people: &'static str,
+    days: &'static str,
+    total_work: &'static str,
+    unmatched: &'static str,
+    sheet: &'static str,
+    empty: &'static str,
+    concept: &'static str,
+    developed: &'static str,
+    columns: [(&'static str, f64); 9],
+}
+
+const TR: Labels = Labels {
+    title: "Personel Takip Sistemi - Puantaj",
+    period: "Dönem",
+    company: "Firma",
+    all: "Tümü",
+    generated: "Oluşturma",
+    people: "Personel",
+    days: "Gün",
+    total_work: "Toplam çalışma",
+    unmatched: "Eşleşmeyen hareket",
+    sheet: "Puantaj",
+    empty: "Bu dönemde hareket yok.",
+    concept: "Fikir",
+    developed: "Geliştiren",
+    columns: [
+        ("Sicil", 10.0),
+        ("Ad Soyad", 26.0),
+        ("Firma", 16.0),
+        ("Unvan", 18.0),
+        ("Tarih", 12.0),
+        ("İlk giriş", 10.0),
+        ("Son çıkış", 10.0),
+        ("Çalışılan", 11.0),
+        ("Uyarı", 8.0),
+    ],
+};
+
+const EN: Labels = Labels {
+    title: "Staff Tracking System - Timesheet",
+    period: "Period",
+    company: "Company",
+    all: "All",
+    generated: "Generated",
+    people: "Staff",
+    days: "Days",
+    total_work: "Total worked",
+    unmatched: "Unmatched events",
+    sheet: "Timesheet",
+    empty: "No activity in this period.",
+    concept: "Concept",
+    developed: "Developed by",
+    columns: [
+        ("Staff no", 10.0),
+        ("Name", 26.0),
+        ("Company", 16.0),
+        ("Title", 18.0),
+        ("Date", 12.0),
+        ("First in", 10.0),
+        ("Last out", 10.0),
+        ("Worked", 11.0),
+        ("Warning", 8.0),
+    ],
+};
+
+fn labels(lang: Option<&str>) -> &'static Labels {
+    match lang {
+        Some("en") => &EN,
+        _ => &TR,
+    }
+}
 
 /// ERN marka yesili.
 const ERN: Color = Color::RGB(0x00584E);
@@ -41,11 +121,21 @@ pub fn router() -> Router<AppState> {
     Router::new().route("/timesheet.xlsx", get(timesheet))
 }
 
+/// Puantaj filtresi + rapor dili.
+#[derive(Debug, serde::Deserialize)]
+pub struct ReportQuery {
+    #[serde(flatten)]
+    filter: DailyQuery,
+    lang: Option<String>,
+}
+
 async fn timesheet(
     State(state): State<AppState>,
     _user: CurrentUser,
-    Query(q): Query<DailyQuery>,
+    Query(req): Query<ReportQuery>,
 ) -> ApiResult<impl IntoResponse> {
+    let q = req.filter;
+    let l = labels(req.lang.as_deref());
     let rows = daily_rows(&state, &q).await?;
 
     let from = q.from.unwrap_or_else(|| Utc::now().date_naive());
@@ -59,7 +149,7 @@ async fn timesheet(
         None => None,
     };
 
-    let bytes = build_workbook(&rows, from, to, company.as_deref())
+    let bytes = build_workbook(&rows, from, to, company.as_deref(), l)
         .map_err(|e| ApiError::Internal(format!("Excel uretilemedi: {e}")))?;
 
     let filename = format!("puantaj_{from}_{to}.xlsx");
@@ -100,14 +190,15 @@ fn build_workbook(
     from: NaiveDate,
     to: NaiveDate,
     company: Option<&str>,
+    l: &Labels,
 ) -> Result<Vec<u8>, rust_xlsxwriter::XlsxError> {
     let mut workbook = Workbook::new();
     let sheet = workbook.add_worksheet();
-    sheet.set_name("Puantaj")?;
+    sheet.set_name(l.sheet)?;
 
-    write_header(sheet, from, to, company)?;
-    let first_data_row = write_summary(sheet, rows)?;
-    write_table(sheet, rows, first_data_row)?;
+    write_header(sheet, from, to, company, l)?;
+    let first_data_row = write_summary(sheet, rows, l)?;
+    write_table(sheet, rows, first_data_row, l)?;
 
     workbook.save_to_buffer()
 }
@@ -124,6 +215,7 @@ fn write_header(
     from: NaiveDate,
     to: NaiveDate,
     company: Option<&str>,
+    l: &Labels,
 ) -> Result<(), rust_xlsxwriter::XlsxError> {
     sheet.set_row_height(0, 30)?;
     sheet.insert_image(0, 0, &scaled_logo(LOGO_HOLDING)?)?;
@@ -136,18 +228,18 @@ fn write_header(
         .set_align(FormatAlign::Left);
     let subtitle = Format::new().set_font_size(10).set_font_color(Color::Gray);
 
-    sheet.write_with_format(1, 0, "Personel Takip Sistemi - Puantaj", &title)?;
+    sheet.write_with_format(1, 0, l.title, &title)?;
 
     let range = if from == to {
         format!("{}", from.format("%d.%m.%Y"))
     } else {
         format!("{} - {}", from.format("%d.%m.%Y"), to.format("%d.%m.%Y"))
     };
-    sheet.write_with_format(2, 0, format!("Donem: {range}"), &subtitle)?;
+    sheet.write_with_format(2, 0, format!("{}: {range}", l.period), &subtitle)?;
     sheet.write_with_format(
         3,
         0,
-        format!("Firma: {}", company.unwrap_or("Tumu")),
+        format!("{}: {}", l.company, company.unwrap_or(l.all)),
         &subtitle,
     )?;
 
@@ -156,7 +248,8 @@ fn write_header(
         3,
         4,
         format!(
-            "Olusturma: {:02}.{:02}.{} {:02}:{:02}",
+            "{}: {:02}.{:02}.{} {:02}:{:02}",
+            l.generated,
             now.day(),
             now.month(),
             now.year(),
@@ -173,6 +266,7 @@ fn write_header(
 fn write_summary(
     sheet: &mut Worksheet,
     rows: &[DailySummary],
+    l: &Labels,
 ) -> Result<u32, rust_xlsxwriter::XlsxError> {
     let label = Format::new()
         .set_bold()
@@ -199,10 +293,10 @@ fn write_summary(
     days.dedup();
 
     let cells = [
-        ("Personel", people.len().to_string()),
-        ("Gun", days.len().to_string()),
-        ("Toplam calisma", hhmm(total_minutes)),
-        ("Eslesmeyen hareket", unmatched.to_string()),
+        (l.people, people.len().to_string()),
+        (l.days, days.len().to_string()),
+        (l.total_work, hhmm(total_minutes)),
+        (l.unmatched, unmatched.to_string()),
     ];
 
     for (i, (name, val)) in cells.iter().enumerate() {
@@ -218,6 +312,7 @@ fn write_table(
     sheet: &mut Worksheet,
     rows: &[DailySummary],
     start: u32,
+    l: &Labels,
 ) -> Result<(), rust_xlsxwriter::XlsxError> {
     let head = Format::new()
         .set_bold()
@@ -238,19 +333,7 @@ fn write_table(
         .set_font_color(Color::RGB(0xB45309))
         .set_bold();
 
-    let headers = [
-        ("Sicil", 10.0),
-        ("Ad Soyad", 26.0),
-        ("Firma", 16.0),
-        ("Unvan", 18.0),
-        ("Tarih", 12.0),
-        ("Ilk giris", 10.0),
-        ("Son cikis", 10.0),
-        ("Calisilan", 11.0),
-        ("Uyari", 8.0),
-    ];
-
-    for (i, (name, width)) in headers.iter().enumerate() {
+    for (i, (name, width)) in l.columns.iter().enumerate() {
         let col = i as u16;
         sheet.write_with_format(start, col, *name, &head)?;
         sheet.set_column_width(col, *width)?;
@@ -282,13 +365,23 @@ fn write_table(
     }
 
     if rows.is_empty() {
-        sheet.write_with_format(start + 1, 0, "Bu donemde hareket yok.", &cell)?;
+        sheet.write_with_format(start + 1, 0, l.empty, &cell)?;
     }
 
     let credit = Format::new().set_font_size(8).set_font_color(Color::Gray);
     let credit_row = start + rows.len().max(1) as u32 + 2;
-    sheet.write_with_format(credit_row, 0, CONCEPT_BY, &credit)?;
-    sheet.write_with_format(credit_row + 1, 0, DEVELOPED_BY, &credit)?;
+    sheet.write_with_format(
+        credit_row,
+        0,
+        format!("{}: {CONCEPT_NAME}", l.concept),
+        &credit,
+    )?;
+    sheet.write_with_format(
+        credit_row + 1,
+        0,
+        format!("{}: {DEVELOPER_NAME}", l.developed),
+        &credit,
+    )?;
 
     // Baslik satiri kaydirmada sabit kalsin ve filtre kutulari acilsin.
     sheet.set_freeze_panes(start + 1, 0)?;

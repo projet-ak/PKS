@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { api, type Company, type Employee } from "../api";
+import { useI18n } from "../i18n";
 import MarkerCard from "../MarkerCard";
 
 /// Form alanlari; hem ekleme hem duzenleme icin ayni sekil kullanilir.
@@ -34,6 +35,7 @@ function toForm(e: Employee): Form {
 }
 
 export default function Employees() {
+  const { t } = useI18n();
   const [rows, setRows] = useState<Employee[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [filter, setFilter] = useState("");
@@ -118,7 +120,7 @@ export default function Employees() {
     const raw = markerInput[employeeId];
     const markerId = Number(raw);
     if (!raw || Number.isNaN(markerId)) {
-      setError("Gecerli bir ArUco ID girin");
+      setError(t("emp.invalidId"));
       return;
     }
     try {
@@ -143,31 +145,31 @@ export default function Employees() {
 
   return (
     <section>
-      <h1 className="no-print">Personel</h1>
+      <h1 className="no-print">{t("emp.title")}</h1>
 
       <form className="card no-print" onSubmit={submit}>
-        <div className="card-title">Yeni personel</div>
+        <div className="card-title">{t("emp.new")}</div>
         <div className="form-row">
           <input
-            placeholder="Sicil no"
+            placeholder={t("emp.noPlaceholder")}
             value={form.employee_no}
             onChange={(e) => setForm({ ...form, employee_no: e.target.value })}
             required
           />
           <input
-            placeholder="Ad"
+            placeholder={t("emp.firstName")}
             value={form.first_name}
             onChange={(e) => setForm({ ...form, first_name: e.target.value })}
             required
           />
           <input
-            placeholder="Soyad"
+            placeholder={t("emp.lastName")}
             value={form.last_name}
             onChange={(e) => setForm({ ...form, last_name: e.target.value })}
             required
           />
           <input
-            placeholder="Unvan"
+            placeholder={t("common.title")}
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
           />
@@ -187,21 +189,21 @@ export default function Employees() {
             onChange={(e) => setForm({ ...form, hired_on: e.target.value })}
             required
           />
-          <button type="submit">Ekle</button>
+          <button type="submit">{t("common.add")}</button>
         </div>
       </form>
 
       <div className="form-row no-print" style={{ marginBottom: "0.9rem" }}>
-        <span className="hint">Firma</span>
+        <span className="hint">{t("common.company")}</span>
         <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-          <option value="">Tumu</option>
+          <option value="">{t("common.all")}</option>
           {companies.map((c) => (
             <option key={c.id} value={c.id}>
               {c.name}
             </option>
           ))}
         </select>
-        <span className="hint">{rows.length} kayit</span>
+        <span className="hint">{rows.length} {t("common.records")}</span>
       </div>
 
       {error && <p className="error-text no-print">{error}</p>}
@@ -210,13 +212,13 @@ export default function Employees() {
         <table>
           <thead>
             <tr>
-              <th>Sicil</th>
-              <th>Ad Soyad</th>
-              <th>Firma</th>
-              <th>Unvan</th>
-              <th>Ise giris</th>
-              <th>Kart</th>
-              <th>Islem</th>
+              <th>{t("emp.no")}</th>
+              <th>{t("emp.fullName")}</th>
+              <th>{t("common.company")}</th>
+              <th>{t("common.title")}</th>
+              <th>{t("emp.hiredOn")}</th>
+              <th>{t("emp.card")}</th>
+              <th>{t("common.actions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -296,13 +298,13 @@ export default function Employees() {
                   <td>
                     <div className="cell-actions">
                       <button onClick={() => void saveEdit(r.id)}>
-                        Kaydet
+                        {t("common.save")}
                       </button>
                       <button
                         className="ghost"
                         onClick={() => setEditingId(null)}
                       >
-                        Vazgec
+                        {t("common.cancel")}
                       </button>
                     </div>
                   </td>
@@ -335,10 +337,10 @@ export default function Employees() {
                         className="ghost"
                         onClick={() => void assignFromNo(r.id)}
                       >
-                        Sicilden
+                        {t("emp.fromNo")}
                       </button>
                       <input
-                        placeholder="Elle"
+                        placeholder={t("emp.manualId")}
                         style={{ minWidth: "5rem" }}
                         value={markerInput[r.id] ?? ""}
                         onChange={(e) =>
@@ -352,7 +354,7 @@ export default function Employees() {
                         className="ghost"
                         onClick={() => void assign(r.id)}
                       >
-                        Tanimla
+                        {t("emp.assign")}
                       </button>
                     </div>
                   </td>
@@ -365,26 +367,26 @@ export default function Employees() {
                           setEditForm(toForm(r));
                         }}
                       >
-                        Duzenle
+                        {t("common.edit")}
                       </button>
                       <button
                         className="ghost"
                         disabled={r.marker_id === null}
                         title={
                           r.marker_id === null
-                            ? "Once ArUco kart tanimlayin"
-                            : "Karti onizle ve yazdir"
+                            ? t("emp.needCard")
+                            : t("emp.printCardHint")
                         }
                         onClick={() => setPrinting(r)}
                       >
-                        Kart
+                        {t("emp.printCard")}
                       </button>
                       {r.marker_id !== null && (
                         <button
                           className="ghost"
                           onClick={() => void revoke(r.id)}
                         >
-                          Kart iptal
+                          {t("emp.revoke")}
                         </button>
                       )}
                     </div>
@@ -395,7 +397,7 @@ export default function Employees() {
             {rows.length === 0 && (
               <tr>
                 <td colSpan={7} className="hint">
-                  Henuz personel yok.
+                  {t("emp.empty")}
                 </td>
               </tr>
             )}
@@ -418,9 +420,9 @@ export default function Employees() {
             />
 
             <div className="form-row no-print" style={{ marginTop: "1rem" }}>
-              <button onClick={() => window.print()}>Yazdir</button>
+              <button onClick={() => window.print()}>{t("common.print")}</button>
               <button className="ghost" onClick={() => setPrinting(null)}>
-                Kapat
+                {t("common.close")}
               </button>
             </div>
           </div>

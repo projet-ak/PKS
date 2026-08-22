@@ -67,7 +67,7 @@ unique index ile veritabanı seviyesinde garanti altındadır.
 | `GET` | `/api/attendance/daily?from&to&company_id&employee_id` | Puantaj özeti |
 | `GET` | `/api/attendance/photo/{id}` | Geçiş anındaki kamera görüntüsü |
 | `GET` | `/api/dashboard` | Genel bakış sayıları ve son 7 gün |
-| `GET` | `/api/reports/timesheet.xlsx?from&to&company_id` | Excel puantaj raporu |
+| `GET` | `/api/reports/timesheet.xlsx?from&to&company_id&lang` | Excel puantaj raporu (tr/en) |
 | `GET` | `/api/users` | Kullanıcı listesi (yönetici) |
 | `POST` | `/api/users` | Kullanıcı ekle (yönetici) |
 | `PUT` | `/api/users/{id}` | Rol, durum veya parola güncelle (yönetici) |
@@ -139,6 +139,16 @@ küçük kalır. Fotoğraf yazılamazsa geçiş yine kaydedilir — kanıt gör�
 kaydın tamamlayıcısıdır, ön koşulu değil.
 
 Puantajdaki **Aktivite** penceresi her hareketi fotoğrafıyla birlikte gösterir.
+
+## Dil desteği
+
+Panel Türkçe ve İngilizce çalışır; sağ üstteki **TR / EN** düğmeleri dili
+değiştirir ve seçim tarayıcıda saklanır. Tarih ve saat biçimleri de dile göre
+değişir. Excel raporu `lang` parametresiyle aynı dilde üretilir — yabancı bir
+muhataba Türkçe başlıklı tablo göndermek zorunda kalınmaz.
+
+Metinler tek sözlükte (`frontend/src/i18n.tsx`) durur; eksik bir anahtar
+ekranda anahtar adı olarak görünür, böylece unutulan çeviri fark edilir.
 
 ## Arayüz
 

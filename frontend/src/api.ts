@@ -307,8 +307,12 @@ export const api = {
 
   photoUrl: (eventId: number) => api.blobUrl(`/attendance/photo/${eventId}`),
 
-  downloadTimesheet: async (f: TimesheetFilter = {}) => {
-    const url = await api.blobUrl(`/reports/timesheet.xlsx${filterQuery(f)}`);
+  /// Rapor dili panelin diliyle ayni olsun; cikti Turkce veya Ingilizce.
+  downloadTimesheet: async (f: TimesheetFilter = {}, lang = "tr") => {
+    const q = filterQuery(f);
+    const url = await api.blobUrl(
+      `/reports/timesheet.xlsx${q}${q ? "&" : "?"}lang=${lang}`,
+    );
     const a = document.createElement("a");
     a.href = url;
     a.download = `puantaj_${f.from ?? ""}_${f.to ?? ""}.xlsx`;

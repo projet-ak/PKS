@@ -15,5 +15,5 @@ export const LOGOS = {
 
 /// Alt bilgilerde ve giris ekraninda gosterilen ibareler. Ingilizce
 /// tutuluyor; cikti ve ekranlar kurum disina da gidebiliyor.
-export const CONCEPT = "Omer Faruk Kaya";
+export const CONCEPT = "Ömer Faruk Kaya";
 export const DEVELOPER = "Tayyar Akbulut";

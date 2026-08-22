@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 
 import { api, type Company } from "../api";
+import { useI18n } from "../i18n";
 
 export default function Companies() {
+  const { t } = useI18n();
   const [rows, setRows] = useState<Company[]>([]);
   const [code, setCode] = useState("");
   const [name, setName] = useState("");
@@ -101,11 +103,11 @@ export default function Companies() {
                     onClick={() => void remove(r.id)}
                     title={
                       r.employee_count
-                        ? "Once bagli personeli baska firmaya tasiyin"
-                        : "Firmayi pasife cek"
+                        ? t("co.hasEmployees")
+                        : t("common.deactivate")
                     }
                   >
-                    Pasife al
+                    {t("common.deactivate")}
                   </button>
                 </td>
               </tr>
@@ -113,7 +115,7 @@ export default function Companies() {
             {rows.length === 0 && (
               <tr>
                 <td colSpan={4} className="hint">
-                  Henuz firma yok.
+                  {t("co.empty")}
                 </td>
               </tr>
             )}

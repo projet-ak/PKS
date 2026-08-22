@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { api, type Employee } from "../api";
+import { useI18n } from "../i18n";
 import MarkerCard, { DICTIONARY, markerRange } from "../MarkerCard";
 
 export default function Cards() {
+  const { t } = useI18n();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [selected, setSelected] = useState<string>("");
   const [markerId, setMarkerId] = useState("1");
@@ -40,17 +42,17 @@ export default function Cards() {
 
   return (
     <section>
-      <h1 className="no-print">ArUco Kart Uret</h1>
+      <h1 className="no-print">{t("cards.title")}</h1>
 
       <div className="card no-print">
-        <div className="card-title">Kart bilgileri</div>
+        <div className="card-title">{t("cards.info")}</div>
         <div className="form-row">
           <select value={selected} onChange={(e) => pickEmployee(e.target.value)}>
-            <option value="">Personel sec...</option>
+            <option value="">{t("cards.pickEmployee")}</option>
             {employees.map((e) => (
               <option key={e.id} value={e.id}>
                 {e.employee_no} - {e.first_name} {e.last_name}
-                {e.marker_id === null ? " (kart yok)" : ` (ID ${e.marker_id})`}
+                {e.marker_id === null ? ` (${t("cards.noCard")})` : ` (ID ${e.marker_id})`}
               </option>
             ))}
           </select>
@@ -66,31 +68,28 @@ export default function Cards() {
           <input
             value={label}
             onChange={(e) => setLabel(e.target.value)}
-            placeholder="Kart uzerine yazilacak ad"
+            placeholder={t("cards.labelPlaceholder")}
             style={{ minWidth: "16rem" }}
           />
-          <button onClick={() => window.print()}>Yazdir</button>
+          <button onClick={() => window.print()}>{t("common.print")}</button>
         </div>
       </div>
 
       <p className="hint no-print">
-        {DICTIONARY} sozlugu, gecerli ID araligi 0 - {maxId}. Kart, personele
-        tanimli ID ile ayni olmali; tanimlamayi Personel sayfasindan yaparsin.
+        {DICTIONARY} {t("cards.range", { max: maxId })}
       </p>
 
       {loadError && <p className="error-text no-print">{loadError}</p>}
 
       {cardless && (
         <p className="error-text no-print">
-          Bu personele henuz kart tanimli degil. Personel sayfasindan "Sicilden"
-          ile tanimla, yoksa kiosk bu karti tanimaz.
+          {t("cards.cardless")}
         </p>
       )}
 
       {mismatch && (
         <p className="error-text no-print">
-          Gosterilen ID, personele tanimli ID ({selectedEmployee?.marker_id}) ile
-          ayni degil. Bu kart kiosk tarafindan bu personel olarak okunmaz.
+          {t("cards.mismatch", { id: selectedEmployee?.marker_id ?? "" })}
         </p>
       )}
 

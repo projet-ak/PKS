@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 
 import { api, type Checkpoint, type Company } from "../api";
+import { locale, useI18n } from "../i18n";
 
 export default function Checkpoints() {
+  const { t, lang } = useI18n();
   const [rows, setRows] = useState<Checkpoint[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [code, setCode] = useState("");
@@ -43,37 +45,36 @@ export default function Checkpoints() {
 
   return (
     <section>
-      <h1>Gecis Noktalari</h1>
+      <h1>{t("cp.title")}</h1>
       <p className="hint">
-        Her kiosk cihazi bir gecis noktasina baglanir. Anahtari kiosk sayfasina
-        bir kez girersiniz; cihaz o noktanin adina kayit acar.
+        {t("cp.info")}
       </p>
 
       <form className="card" onSubmit={submit}>
-        <div className="card-title">Yeni nokta</div>
+        <div className="card-title">{t("cp.new")}</div>
         <div className="form-row">
           <input
-            placeholder="Kod (ANA-GIRIS)"
+            placeholder={`${t("cp.code")} (ANA-GIRIS)`}
             value={code}
             onChange={(e) => setCode(e.target.value.toUpperCase())}
             required
           />
           <input
-            placeholder="Ad (Ana Giris Turnikesi)"
+            placeholder={t("cp.name")}
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
             style={{ minWidth: "14rem" }}
           />
           <select value={companyId} onChange={(e) => setCompanyId(e.target.value)}>
-            <option value="">Firma sec (istege bagli)</option>
+            <option value="">{t("cp.optionalCompany")}</option>
             {companies.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
               </option>
             ))}
           </select>
-          <button type="submit">Olustur</button>
+          <button type="submit">{t("cp.create")}</button>
         </div>
       </form>
 
@@ -83,11 +84,11 @@ export default function Checkpoints() {
         <table>
           <thead>
             <tr>
-              <th>Kod</th>
-              <th>Ad</th>
-              <th>Cihaz anahtari</th>
-              <th>Son goruldu</th>
-              <th>Durum</th>
+              <th>{t("cp.code")}</th>
+              <th>{t("cp.name")}</th>
+              <th>{t("cp.key")}</th>
+              <th>{t("cp.lastSeen")}</th>
+              <th>{t("common.status")}</th>
             </tr>
           </thead>
           <tbody>
@@ -107,7 +108,7 @@ export default function Checkpoints() {
                     className="ghost"
                     onClick={() => setShown({ ...shown, [r.id]: !shown[r.id] })}
                   >
-                    {shown[r.id] ? "Gizle" : "Goster"}
+                    {shown[r.id] ? t("common.hide") : t("common.show")}
                   </button>
                   {shown[r.id] && (
                     <button
@@ -117,18 +118,18 @@ export default function Checkpoints() {
                         setCopied(r.id);
                       }}
                     >
-                      {copied === r.id ? "Kopyalandi" : "Kopyala"}
+                      {copied === r.id ? t("common.copied") : t("common.copy")}
                     </button>
                   )}
                 </td>
                 <td className="hint">
                   {r.last_seen_at
-                    ? new Date(r.last_seen_at).toLocaleString("tr-TR")
-                    : "hic"}
+                    ? new Date(r.last_seen_at).toLocaleString(locale(lang))
+                    : t("common.never")}
                 </td>
                 <td>
                   <span className={r.is_active ? "badge" : "badge muted"}>
-                    {r.is_active ? "aktif" : "pasif"}
+                    {r.is_active ? t("common.active") : t("common.passive")}
                   </span>
                 </td>
               </tr>
@@ -136,7 +137,7 @@ export default function Checkpoints() {
             {rows.length === 0 && (
               <tr>
                 <td colSpan={5} className="hint">
-                  Henuz gecis noktasi yok.
+                  {t("cp.empty")}
                 </td>
               </tr>
             )}
