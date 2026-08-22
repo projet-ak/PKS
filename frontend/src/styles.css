@@ -237,9 +237,12 @@ a {
 
 .main {
   flex: 1;
+  /* min-width olmadan genis bir tablo ana alani sisirir, sayfa yatay kayar
+     ve sidebar goruntuden cikar. */
   min-width: 0;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
 
 .topbar {
@@ -280,9 +283,13 @@ a {
 
 .page {
   padding: 1.5rem;
-  max-width: 1200px;
   width: 100%;
+  /* Genis ekranda icerik sola sikismasin; sinir koymuyoruz. Cok genis
+     ekranlarda satirlarin okunaksiz uzamasini tablolarin kendi sutun
+     genislikleri zaten sinirliyor. */
+  max-width: none;
   flex: 1;
+  min-width: 0;
 }
 
 /* Sayfa altinda kalan ince ibare seridi. */
@@ -297,6 +304,7 @@ a {
 /* ═══════════════════════════════════════════════════ Bilesenler ═══ */
 
 .card {
+  width: 100%;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -429,6 +437,7 @@ td .cell-actions select {
 /* Genis tablolar sayfayi tasirmasin, kendi icinde kaysin. */
 .table-scroll {
   overflow-x: auto;
+  max-width: 100%;
 }
 
 .hint {
@@ -993,10 +1002,17 @@ td .cell-actions select {
 .kiosk-panes {
   display: grid;
   gap: 1rem;
+  grid-template-columns: minmax(0, 720px);
 }
 
 .kiosk-panes.dual {
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+/* Kiosk goruntusu panelin tamamini kaplasin. */
+.kiosk-pane .kiosk-canvas {
+  max-width: 100%;
+  width: 100%;
 }
 
 .kiosk-pane {
